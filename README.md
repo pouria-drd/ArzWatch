@@ -1,10 +1,10 @@
 # ArzWatch
 
-A Python-based currency and price monitoring tool that fetches and displays real-time market data from website like TGJU (Tehran Gold and Jewelry Union) and other ones.
+A Python-based currency and price monitoring tool that fetches and displays real-time market data from websites like [Alan Chand](https://alanchand.com/gold-price) and other ones.
 
 ## Features
 
--   Real-time price fetching from TGJU
+-   Real-time price fetching from [Alan Chand](https://alanchand.com/gold-price) and other sources
 -   Multiple display formats (table and name-value pairs)
 -   Support for both Rial and Toman currency display
 -   Clean and organized terminal output
