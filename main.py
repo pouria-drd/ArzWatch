@@ -1,11 +1,16 @@
+import os
+from dotenv import load_dotenv
 from fetchers import TGJUPriceFetcher
 from formatters.tgju import TGJUPriceFormatter, TGJUTablePrinter
 from utils.tgju_print_helpers import tgju_print_name_value, tgju_print_price_table
 
-# TODO: make it configurable
-use_toman = True
-# TODO: make it configurable
-print_type = "table"  # table or name_value
+# Loads the variables from the .env file into the environment
+load_dotenv()
+
+# True to use Toman, False to use Rial
+use_toman = os.getenv("USE_TOMAN", "True") == "True"
+# table or name_value
+print_type = os.getenv("PRINT_TYPE", "table")
 
 
 def main():
