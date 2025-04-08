@@ -68,9 +68,19 @@ You can modify the following settings in `main.py`:
 ArzWatch/
 ├── main.py              # Main application entry point
 ├── requirements.txt     # Project dependencies
-├── fetchers/           # Data fetching modules
-├── formatters/         # Data formatting modules
-└── utils/              # Utility functions and helpers
+├── .env                # Environment configuration file
+├── .gitignore          # Git ignore rules
+├── extractors/         # Data extraction modules
+│   ├── __init__.py
+│   └── alan_chand/     # Alan Chand website extractors
+│       ├── __init__.py
+│       └── gold_and_coin/  # Gold and coin price extractors
+│           ├── __init__.py
+│           ├── base.py            # Base extractor class
+│           ├── gold_extractor.py  # Gold price extractor
+│           ├── coin_extractor.py  # Coin price extractor
+│           └── gold_and_coin_extractor.py  # Combined extractor
+└── .venv/              # Python virtual environment
 ```
 
 ## Dependencies
