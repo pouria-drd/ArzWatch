@@ -1,7 +1,6 @@
 from typing import Dict
 from tabulate import tabulate
 from termcolor import colored
-import shutil
 
 
 class DataPrinter:
