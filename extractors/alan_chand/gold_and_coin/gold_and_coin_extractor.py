@@ -1,5 +1,6 @@
 import json
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
+
 from .gold_extractor import GoldExtractor
 from .coin_extractor import CoinExtractor
 
@@ -13,7 +14,7 @@ class GoldAndCoinExtractor:
         self.gold_extractor = GoldExtractor()
         self.coin_extractor = CoinExtractor()
 
-    def extract_data(self, format: Optional[str] = None) -> List[Dict[str, str]]:
+    def extract_data(self, format: Optional[str] = None) -> Union[Dict, str]:
         """
         Extracts gold and coin data from the https://alanchand.com/gold-price website.
 
@@ -41,9 +42,11 @@ class GoldAndCoinExtractor:
 
         return result
 
-    def extract_gold_data(self, format: Optional[str] = None) -> List[Dict[str, str]]:
+    def fetch_gold_data(
+        self, format: Optional[str] = None
+    ) -> Dict[str, Union[str, List[Dict[str, str]]]]:
         """
-        Extracts gold data from the https://alanchand.com/gold-price website.
+        Fetches gold data from the https://alanchand.com/gold-price website.
 
         Args:
             format: The format of the data to be returned. (json)
@@ -55,9 +58,11 @@ class GoldAndCoinExtractor:
         soup = self.gold_extractor.fetch_data()
         return self.gold_extractor.extract_gold_data(soup, format)
 
-    def extract_coin_data(self, format: Optional[str] = None) -> List[Dict[str, str]]:
+    def fetch_coin_data(
+        self, format: Optional[str] = None
+    ) -> Dict[str, Union[str, List[Dict[str, str]]]]:
         """
-        Extracts coin data from the https://alanchand.com/gold-price website.
+        Fetches coin data from the https://alanchand.com/gold-price website.
 
         Args:
             format: The format of the data to be returned. (json)
