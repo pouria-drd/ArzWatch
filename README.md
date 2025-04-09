@@ -41,9 +41,7 @@ pip install -r requirements.txt
 
     ```ini
 
-    USE_TOMAN="True" # or False to use Rial
-
-    PRINT_TYPE="table" # or name_value
+    TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"
 
     ```
 
