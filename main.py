@@ -1,29 +1,18 @@
-import sys
-from bot import run_bot
-from printers import DataPrinter
-from extractors.alan_chand import GoldAndCoinExtractor
+from bots import ArzWatchBot
+
+# from scrapers.alan_chand import AlanChandGoldScraper, AlanChandCoinScraper
 
 
 def main():
-    run_bot()
-    # if len(sys.argv) < 2:
-    #     print("Usage: py main.py [golds|coins]")
-    #     return
+    bot = ArzWatchBot()
+    bot.run()
+    # gold_scraper = AlanChandGoldScraper()
+    # result = gold_scraper.fetch_gold_data(pretty=True)
+    # print(result)
 
-    # category = sys.argv[1]
-
-    # extractor = GoldAndCoinExtractor()
-
-    # if category == "golds":
-    #     data = extractor.fetch_gold_data()
-    # elif category == "coins":
-    #     data = extractor.fetch_coin_data()
-    # else:
-    #     print("Invalid category. Use 'golds' or 'coins'.")
-    #     return
-
-    # printer = DataPrinter(data)
-    # printer.print_table()
+    # coin_scraper = AlanChandCoinScraper()
+    # result = coin_scraper.fetch_coin_data(pretty=True)
+    # print(result)
 
 
 if __name__ == "__main__":
