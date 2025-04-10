@@ -5,12 +5,12 @@ from datetime import datetime, timezone
 
 # Create the database directory in the root directory if it doesn't exist
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
-DATA_FILE = ROOT_DIR / "database" / "telegram" / "users.json"
+DATABASE_DIR = ROOT_DIR / "database" / "telegram" / "users.json"
 
 # If the data file doesn't exist, create it
-if not os.path.exists(DATA_FILE):
-    os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
+if not os.path.exists(DATABASE_DIR):
+    os.makedirs(os.path.dirname(DATABASE_DIR), exist_ok=True)
+    with open(DATABASE_DIR, "w", encoding="utf-8") as f:
         json.dump({}, f)
 
 
@@ -21,7 +21,7 @@ def load_users() -> dict:
     Returns:
         dict: A dictionary where keys are user IDs (as strings) and values are user info.
     """
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
+    with open(DATABASE_DIR, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -32,7 +32,7 @@ def save_users(users):
     Args:
         users (dict): A dictionary of users to be saved.
     """
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
+    with open(DATABASE_DIR, "w", encoding="utf-8") as f:
         json.dump(users, f, indent=4, ensure_ascii=False)
 
 
