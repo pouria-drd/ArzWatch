@@ -1,18 +1,17 @@
+import os
 from bots import ArzWatchBot
+from dotenv import load_dotenv
 
-# from scrapers.alan_chand import AlanChandGoldScraper, AlanChandCoinScraper
+# Load environment variables from .env file
+load_dotenv()
+
+BASE_API_URL = os.getenv("BASE_API_URL")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 
 def main():
-    bot = ArzWatchBot()
+    bot = ArzWatchBot(BASE_API_URL, TELEGRAM_BOT_TOKEN)
     bot.run()
-    # gold_scraper = AlanChandGoldScraper()
-    # result = gold_scraper.fetch_gold_data(pretty=True)
-    # print(result)
-
-    # coin_scraper = AlanChandCoinScraper()
-    # result = coin_scraper.fetch_coin_data(pretty=True)
-    # print(result)
 
 
 if __name__ == "__main__":

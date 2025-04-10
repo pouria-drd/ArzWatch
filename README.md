@@ -63,6 +63,7 @@ pip install -r requirements.txt
 After installation on any platform, create a `.env` file in the project root and add the following:
 
 ```ini
+BASE_API_URL="YOUR_BASE_API_URL"
 TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"
 ```
 
