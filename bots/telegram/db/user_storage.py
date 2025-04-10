@@ -1,10 +1,11 @@
 import os
 import json
 from pathlib import Path
+from datetime import datetime, timezone
 
 # Create the database directory in the root directory if it doesn't exist
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
-DATA_FILE = ROOT_DIR / "database" / "users.json"
+DATA_FILE = ROOT_DIR / "database" / "telegram" / "users.json"
 
 # If the data file doesn't exist, create it
 if not os.path.exists(DATA_FILE):
@@ -46,11 +47,28 @@ def upsert_user(user_id, username, first_name, last_name):
         last_name (str): Last name of the user.
     """
     users = load_users()
-    users[str(user_id)] = {
-        "username": username,
-        "first_name": first_name,
-        "last_name": last_name,
-    }
+    user_id_str = str(user_id)
+    # Get the current time in UTC and ISO format
+    now = datetime.now(timezone.utc).isoformat()
+
+    if user_id_str not in users:
+        users[user_id_str] = {
+            "username": username,
+            "first_name": first_name,
+            "last_name": last_name,
+            "created_at": now,
+            "updated_at": now,
+        }
+    else:
+        users[user_id_str].update(
+            {
+                "username": username,
+                "first_name": first_name,
+                "last_name": last_name,
+                "updated_at": now,
+            }
+        )
+
     save_users(users)
 
 
