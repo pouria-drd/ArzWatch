@@ -90,7 +90,9 @@ local_settings.py
 .env
 *.sqlite3
 .venv
-
+users.json
+database
+data/
 media
 
 

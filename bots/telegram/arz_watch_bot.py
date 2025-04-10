@@ -5,8 +5,12 @@ from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, Application, CommandHandler, ContextTypes
 
+
 from logger import LoggerFactory
 from scrapers.alan_chand import AlanChandGoldScraper, AlanChandCoinScraper
+
+from bots.telegram import messages
+from bots.telegram.db import get_total_users, upsert_user
 
 # Enable logging for debugging and monitoring
 logging.basicConfig(
@@ -60,20 +64,22 @@ class ArzWatchBot:
             context (ContextTypes.DEFAULT_TYPE): The context object.
         """
         user = update.effective_user
-        username = f"{user.first_name}" if user.first_name else user.username
+        username = user.username or ""
+        first_name = user.first_name or ""
+        last_name = user.last_name or ""
 
-        await update.message.reply_text(
-            f"""
-سلام 👋 <b>{username}</b> عزیز!  
-به ربات <b>ArzWatch</b> خوش اومدی 🟢
+        # Save user data to the database
+        upsert_user(user.id, username, first_name, last_name)
 
-این ربات برای نمایش قیمت‌های لحظه‌ای بازار طراحی شده 🧠
+        # Get the total number of users
+        total = get_total_users()
 
-برای مشاهده دستورات موجود، کافیه از دستور زیر استفاده کنی:
-👉 <b>/help</b>
-""",
-            parse_mode="HTML",
-        )
+        welcome_msg = messages.welcome(first_name)
+        welcome_msg += f"\n\n👥 تعداد کاربران: <b>{total}</b> نفر"
+
+        self.logger.info(f"New user: {username} {first_name} {last_name}")
+
+        await update.message.reply_text(welcome_msg, parse_mode="HTML")
 
     async def handle_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """
@@ -83,13 +89,7 @@ class ArzWatchBot:
             update (Update): The update object.
             context (ContextTypes.DEFAULT_TYPE): The context object.
         """
-        await update.message.reply_text(
-            """
-/gold - قیمت طلا
-/coin - قیمت سکه
-/help - راهنما
-"""
-        )
+        await update.message.reply_text(messages.help(), parse_mode="HTML")
 
     async def handle_error(self, update: object, context: ContextTypes.DEFAULT_TYPE):
         """
@@ -103,7 +103,7 @@ class ArzWatchBot:
         self.logger.error("Unhandled error occurred", exc_info=context.error)
         # Reply to the user with an error message
         if isinstance(update, Update) and update.message:
-            await update.message.reply_text("❌ خطای داخلی. لطفا دوباره امتحان کن.")
+            await update.message.reply_text(messages.error(), parse_mode="HTML")
 
     def run(self):
         """Starts the bot."""
