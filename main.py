@@ -1,17 +1,15 @@
-import os
-from bots import ArzWatchBot
-from dotenv import load_dotenv
+import uvicorn
+from fastapi import FastAPI
+from api.routes import prices
 
-# Load environment variables from .env file
-load_dotenv()
+app = FastAPI(title="ArzWatch API")
 
-BASE_API_URL = os.getenv("BASE_API_URL")
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+# Register routes
+app.include_router(prices.router, prefix="/prices")
 
 
 def main():
-    bot = ArzWatchBot(BASE_API_URL, TELEGRAM_BOT_TOKEN)
-    bot.run()
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 if __name__ == "__main__":

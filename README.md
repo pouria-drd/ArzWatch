@@ -69,13 +69,28 @@ TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"
 
 ## Usage
 
-Run the main script:
+Run the api dev server in:
+
+```bash
+fastapi dev main.py
+```
+
+or
 
 ```bash
 python main.py
 ```
 
+This will start the API server which can be used to fetch real-time price information.
+
+Run the bot:
+
+```bash
+python bot.py
+```
+
 This will start the Telegram bot service which can be used to fetch real-time price information.
+The bot will run in the background and can be accessed via the Telegram app.
 
 ## Project Structure
 

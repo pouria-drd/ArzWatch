@@ -119,7 +119,7 @@ class AlanChandGoldScraper:
         # Check if the title tag is not empty
         if not title_tag:
             # Log a warning message
-            logger.warning("Row skipped: Missing title.")
+            # logger.warning("Row skipped: Missing title.")
             return None
         # Get the raw title text
         raw_title = title_tag.get_text(strip=True)
@@ -128,7 +128,7 @@ class AlanChandGoldScraper:
         # Check if the English title is not empty
         if not english_title:
             # Log a warning message
-            logger.warning(f"Unknown title skipped: '{raw_title}'")
+            # logger.warning(f"Unknown title skipped: '{raw_title}'")
             return None
         # Find all cells in the row
         cell_tags = row.find_all("div", class_="cell")
