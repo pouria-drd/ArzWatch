@@ -15,15 +15,15 @@ def fetch_and_cache_data():
     cached_data["gold"] = gold_scraper.fetch_gold_data()
     cached_data["coin"] = coin_scraper.fetch_coin_data()
     now = datetime.now(timezone.utc).isoformat()
-    cached_data["last_updated"] = datetime.now()
+    cached_data["last_updated"] = now
 
 
-# schedule the tasks to run every 5 minutes
+# schedule the tasks to run every 3 minutes
 def start_scheduler():
-    """Starts the scheduler to run the fetch_and_cache_data function every 5 minutes."""
+    """Starts the scheduler to run the fetch_and_cache_data function every 3 minutes."""
     scheduler = BackgroundScheduler()
-    # Run every 5 minutes
-    scheduler.add_job(fetch_and_cache_data, "interval", minutes=5)
+    # Run every 3 minutes
+    scheduler.add_job(fetch_and_cache_data, "interval", minutes=3)
     scheduler.start()
 
 
