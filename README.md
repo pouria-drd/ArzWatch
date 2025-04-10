@@ -1,49 +1,70 @@
 # ArzWatch
 
-A Python-based currency and price monitoring tool that fetches and displays real-time market data from websites like [Alan Chand](https://alanchand.com/gold-price) and other ones.
+A Python-based currency and price monitoring tool with Telegram bot integration that fetches and displays real-time market data from websites like [Alan Chand](https://alanchand.com/gold-price) and other sources.
 
 ## Features
 
 -   Real-time price fetching from [Alan Chand](https://alanchand.com/gold-price) and other sources
--   Multiple display formats (table and name-value pairs)
+-   Telegram bot integration for easy access to price information
 -   Support for both Rial and Toman currency display
 -   Clean and organized terminal output
 -   Modular architecture for easy extension
+-   Logging system for monitoring and debugging
 
 ## Installation
 
-1. Clone the repository:
+### Windows
 
 ```bash
+# Clone the repository
 git clone https://github.com/pouria-drd/ArzWatch.git
 cd ArzWatch
-```
 
-2. Create and activate a virtual environment:
-
-```bash
+# Create and activate virtual environment
 python -m venv .venv
-# On Windows
 .venv\Scripts\activate
-# On Unix or MacOS
-source .venv/bin/activate
-```
 
-3. Install dependencies:
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-4. **Set Up Environment Variables:**
+### macOS
 
-    Create a `.env` file in the project root and add the following:
+```bash
+# Clone the repository
+git clone https://github.com/pouria-drd/ArzWatch.git
+cd ArzWatch
 
-    ```ini
+# Create and activate virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
 
-    TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"
+# Install dependencies
+pip install -r requirements.txt
+```
 
-    ```
+### Linux
+
+```bash
+# Clone the repository
+git clone https://github.com/pouria-drd/ArzWatch.git
+cd ArzWatch
+
+# Create and activate virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Environment Setup
+
+After installation on any platform, create a `.env` file in the project root and add the following:
+
+```ini
+TELEGRAM_BOT_TOKEN="YOUR_TELEGRAM_BOT_TOKEN"
+```
 
 ## Usage
 
@@ -53,12 +74,7 @@ Run the main script:
 python main.py
 ```
 
-### Configuration
-
-You can modify the following settings in `main.py`:
-
--   `use_toman`: Set to `True` to display prices in Toman, `False` for Rial
--   `print_type`: Choose between "table" or "name_value" display format
+This will start the Telegram bot service which can be used to fetch real-time price information.
 
 ## Project Structure
 
@@ -68,25 +84,25 @@ ArzWatch/
 ├── requirements.txt     # Project dependencies
 ├── .env                # Environment configuration file
 ├── .gitignore          # Git ignore rules
-├── extractors/         # Data extraction modules
-│   ├── __init__.py
-│   └── alan_chand/     # Alan Chand website extractors
-│       ├── __init__.py
-│       └── gold_and_coin/  # Gold and coin price extractors
-│           ├── __init__.py
-│           ├── base.py            # Base extractor class
-│           ├── gold_extractor.py  # Gold price extractor
-│           ├── coin_extractor.py  # Coin price extractor
-│           └── gold_and_coin_extractor.py  # Combined extractor
+├── bots/               # Telegram bot implementation
+├── database/           # Database related files
+├── logger/             # Logging configuration and utilities
+├── logs/               # Log files directory
+├── scrapers/           # Web scraping modules
 └── .venv/              # Python virtual environment
 ```
 
 ## Dependencies
 
+Key dependencies include:
+
+-   python-telegram-bot: For Telegram bot functionality
 -   beautifulsoup4: For parsing HTML content
 -   requests: For making HTTP requests
+-   httpx: For async HTTP requests
+-   python-dotenv: For environment variable management
 -   tabulate: For table formatting
--   termcolor: For colored terminal output
+-   colorlog: For colored logging output
 
 ## Contributing
 
