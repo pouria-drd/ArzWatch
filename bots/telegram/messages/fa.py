@@ -1,12 +1,14 @@
-def welcome(username: str) -> str:
+def welcome(username: str, total_users: int) -> str:
     return f"""
 سلام 👋 <b>{username}</b> عزیز!  
-به ربات <b>ArzWatch</b> خوش اومدی 🟢
+به ربات <b>ArzWatch</b> خوش اومدی 🔥
 
-این ربات برای نمایش قیمت‌های لحظه‌ای بازار طراحی شده 🧠
+این ربات برای نمایش قیمت‌های لحظه‌ای بازار طراحی شده 🧑‍💻
+
+<code><b>{total_users}</b></code> نفر درحال استفاده از این ربات هستند. 👥
 
 برای مشاهده دستورات موجود، کافیه از دستور زیر استفاده کنی:
-👉 <b>/help</b>
+👉 /help
 """
 
 

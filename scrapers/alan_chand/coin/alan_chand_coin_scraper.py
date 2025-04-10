@@ -30,6 +30,24 @@ class AlanChandCoinScraper:
         "Gram Coin": "سکه گرمی",
     }
 
+    def get_pte_coin_title_map(self) -> dict[str, str]:
+        """
+        Returns a dictionary that maps Persian titles to English titles.
+
+        Returns:
+            dict: A dictionary that maps Persian titles to English titles.
+        """
+        return self._PERSIAN_TO_ENGLISH_TITLES
+
+    def get_etp_coin_title_map(self) -> dict[str, str]:
+        """
+        Returns a dictionary that maps English titles to Persian titles.
+
+        Returns:
+            dict: A dictionary that maps English titles to Persian titles.
+        """
+        return self._ENGLISH_TO_PERSIAN_TITLES
+
     def fetch_coin_data(self, pretty: bool = False) -> dict[str, str] | str | None:
         """
         Fetches and parses coin data from the source URL.
@@ -110,7 +128,7 @@ class AlanChandCoinScraper:
         # Get the raw title text
         raw_title = title_tag.get_text(strip=True)
         # Get the English title from the raw title
-        english_title = self._PERSIAN_TO_ENGLISH_TITLES.get(raw_title)
+        english_title = self.get_pte_coin_title_map().get(raw_title)
         # Check if the English title is not empty
         if not english_title:
             # Log a warning message
