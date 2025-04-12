@@ -1,10 +1,10 @@
 from datetime import datetime, timezone
 from apscheduler.schedulers.background import BackgroundScheduler
-from scrapers.alan_chand import AlanChandGoldScraper, AlanChandCoinScraper
+from extractors.alan_chand import ACGoldExtractor, ACCoinExtractor
 
 # Initialize the scrapers
-gold_scraper = AlanChandGoldScraper()
-coin_scraper = AlanChandCoinScraper()
+gold_extractor = ACGoldExtractor()
+coin_extractor = ACCoinExtractor()
 
 # Initialize the cached data
 cached_data = {"gold": None, "coin": None, "last_updated": None}
@@ -12,8 +12,8 @@ cached_data = {"gold": None, "coin": None, "last_updated": None}
 
 def fetch_and_cache_data():
     """Fetches and caches data from the scrapers."""
-    cached_data["gold"] = gold_scraper.fetch_gold_data()
-    cached_data["coin"] = coin_scraper.fetch_coin_data()
+    cached_data["gold"] = gold_extractor.fetch_data(pretty=True)
+    cached_data["coin"] = coin_extractor.fetch_data(pretty=True)
     now = datetime.now(timezone.utc).isoformat()
     cached_data["last_updated"] = now
 
@@ -37,11 +37,13 @@ start_scheduler()
 def get_gold_price():
     """Get the gold price from the cache"""
     return cached_data["gold"]
+    # return gold_extractor.fetch_data()
 
 
 def get_coin_price():
     """Get the coin price from the cache"""
     return cached_data["coin"]
+    # return coin_extractor.fetch_data()
 
 
 def get_last_updated():

@@ -3,30 +3,34 @@ import requests
 from bs4 import BeautifulSoup
 from logger import LoggerFactory
 
-# Create a logger for the scraper class
-logger = LoggerFactory.get_logger("AlanChandGoldScraper", "scrapers/alan_chand/gold")
+# Create a logger for the extractor class
+logger = LoggerFactory.get_logger("Extractor", "extractors/alan_chand/coin")
 
 
-class AlanChandGoldScraper:
+class ACCoinExtractor:
     """
-    Scrapes gold prices from https://alanchand.com/gold-price.
+    Scrapes coin prices from https://alanchand.com/gold-price.
     """
 
     _SOURCE_URL: str = "https://alanchand.com/gold-price"
 
     _PERSIAN_TO_ENGLISH_TITLES: dict[str, str] = {
-        "مثقال طلا": "Gold Misqal",
-        "یک گرم طلای 18 عیار": "18k Gold per Gram",
-        "انس طلا": "Gold Ounce",
+        "سکه امامی": "Imami Coin",
+        "سکه بهار آزادی": "Bahare Azadi Coin",
+        "نیم سکه": "Half Coin",
+        "ربع سکه": "Quarter Coin",
+        "سکه گرمی": "Gram Coin",
     }
 
     _ENGLISH_TO_PERSIAN_TITLES: dict[str, str] = {
-        "Gold Misqal": "مثقال طلا",
-        "18k Gold per Gram": "یک گرم طلای 18 عیار",
-        "Gold Ounce": "انس طلا",
+        "Imami Coin": "سکه امامی",
+        "Bahare Azadi Coin": "سکه بهار آزادی",
+        "Half Coin": "نیم سکه",
+        "Quarter Coin": "ربع سکه",
+        "Gram Coin": "سکه گرمی",
     }
 
-    def get_pte_gold_title_map(self) -> dict[str, str]:
+    def get_pte_coin_title_map(self) -> dict[str, str]:
         """
         Returns a dictionary that maps Persian titles to English titles.
 
@@ -35,7 +39,7 @@ class AlanChandGoldScraper:
         """
         return self._PERSIAN_TO_ENGLISH_TITLES
 
-    def get_etp_gold_title_map(self) -> dict[str, str]:
+    def get_etp_coin_title_map(self) -> dict[str, str]:
         """
         Returns a dictionary that maps English titles to Persian titles.
 
@@ -44,15 +48,15 @@ class AlanChandGoldScraper:
         """
         return self._ENGLISH_TO_PERSIAN_TITLES
 
-    def fetch_gold_data(self, pretty: bool = False) -> dict[str, str] | str | None:
+    def fetch_data(self, pretty: bool = False) -> dict[str, str] | str | None:
         """
-        Fetches and parses gold data from the source URL.
+        Fetches and parses coin data from the source URL.
 
         Args:
             pretty (bool): If True, returns the result as a pretty-printed JSON string.
 
         Returns:
-            dict or str or None: Parsed gold data or None if request fails.
+            dict or str or None: Parsed coin data or None if request fails.
         """
         try:
             # Get the response from the website with a timeout to avoid hanging
@@ -61,46 +65,50 @@ class AlanChandGoldScraper:
             response.raise_for_status()
             # Parse the HTML content using BeautifulSoup
             soup = BeautifulSoup(response.text, "html.parser")
-            # Parse the gold data from the HTML content
-            result = self._parse_gold_data(soup)
+            # Parse the coin data from the HTML content
+            result = self._parse_coin_data(soup)
             # Log a success message
-            logger.info("Gold data fetched successfully.")
+            logger.info("Coin data fetched successfully.")
             # Return the result as a JSON string if pretty is True, otherwise return the result
-            return (
-                json.dumps(result, ensure_ascii=False, indent=4) if pretty else result
-            )
+            if pretty:
+                return (
+                    json.dumps(result, ensure_ascii=False, indent=4)
+                    if pretty
+                    else result
+                )
+            return result
         # Handle any exceptions that may occur during the fetching process
         except requests.RequestException as e:
             # Log an error message with the exception details
             logger.error(f"Failed to fetch data from {self._SOURCE_URL}: {e}")
             return None
 
-    def _parse_gold_data(self, soup: BeautifulSoup) -> dict[str, str]:
+    def _parse_coin_data(self, soup: BeautifulSoup) -> dict[str, str]:
         """
-        Parses gold price data and last update time from HTML soup.
+        Parses coin price data and last update time from HTML soup.
 
         Args:
             soup (BeautifulSoup): Parsed HTML soup.
 
         Returns:
-            dict: Dictionary containing gold prices and last update timestamp.
+            dict: Dictionary containing coin prices and last update timestamp.
         """
         # Find all rows with class "col-lg-12"
         data_rows = soup.find_all("div", class_="col-lg-12")
-        # Initialize an empty list to store gold items
-        gold_items = []
+        # Initialize an empty list to store coin items
+        coin_items = []
         # Iterate over each row
         for row in data_rows:
-            # Parse a single gold item from the row
+            # Parse a single coin item from the row
             item = self._parse_single_item(row)
             # Add the item to the gold_items list if it's not None
             if item:
-                gold_items.append(item)
+                coin_items.append(item)
         # Get the last update timestamp from the HTML soup
         last_update_time = self._get_last_update_timestamp(soup)
-        # Return a dictionary containing the gold items and last update timestamp
+        # Return a dictionary containing the coin items and last update timestamp
         return {
-            "golds": gold_items,
+            "coins": coin_items,
             "last_update": last_update_time,
         }
 
@@ -124,7 +132,7 @@ class AlanChandGoldScraper:
         # Get the raw title text
         raw_title = title_tag.get_text(strip=True)
         # Get the English title from the raw title
-        english_title = self.get_pte_gold_title_map().get(raw_title)
+        english_title = self.get_pte_coin_title_map().get(raw_title)
         # Check if the English title is not empty
         if not english_title:
             # Log a warning message
@@ -140,7 +148,7 @@ class AlanChandGoldScraper:
         bubble = cell_tags[2].get_text(strip=True) if len(cell_tags) > 2 else "N/A"
         # Split the bubble text into amount and percentage
         bubble_amount, bubble_percent = self._split_bubble_info(bubble)
-        # Return a dictionary containing the gold item data
+        # Return a dictionary containing the coin item data
         return {
             "title": english_title,
             "price": price,

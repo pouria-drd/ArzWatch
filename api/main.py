@@ -1,11 +1,11 @@
 import uvicorn
 from fastapi import FastAPI
-from api.routes import prices
+from api.v1 import routes as v1_routes
 
 app = FastAPI(title="ArzWatch API")
 
-# Register routes
-app.include_router(prices.router, prefix="/prices")
+# Include v1 routes with prefix
+app.include_router(v1_routes.router, prefix="/api/v1")
 
 
 def main():

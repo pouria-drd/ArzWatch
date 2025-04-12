@@ -54,9 +54,9 @@ class ArzWatchBot:
         """
         # Add handlers
         self.app.add_handler(CommandHandler("start", self.handle_start))
+        self.app.add_handler(CommandHandler("help", self.handle_help))
         self.app.add_handler(CommandHandler("gold", self.handle_gold))
         self.app.add_handler(CommandHandler("coin", self.handle_coin))
-        self.app.add_handler(CommandHandler("help", self.handle_help))
 
     async def handle_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """
@@ -84,6 +84,16 @@ class ArzWatchBot:
         self.logger.info(f"New user: {username} {first_name} {last_name}")
 
         await update.message.reply_text(welcome_msg, parse_mode="HTML")
+
+    async def handle_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """
+        Handles the help command.
+
+        Args:
+            update (Update): The update object.
+            context (ContextTypes.DEFAULT_TYPE): The context object.
+        """
+        await update.message.reply_text(messages.help(), parse_mode="HTML")
 
     async def handle_gold(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """
@@ -169,16 +179,6 @@ class ArzWatchBot:
             messages.coin(coin_items, date_part, time_part, coin_title_map),
             parse_mode="HTML",
         )
-
-    async def handle_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """
-        Handles the help command.
-
-        Args:
-            update (Update): The update object.
-            context (ContextTypes.DEFAULT_TYPE): The context object.
-        """
-        await update.message.reply_text(messages.help(), parse_mode="HTML")
 
     async def handle_error(self, update: object, context: ContextTypes.DEFAULT_TYPE):
         """
