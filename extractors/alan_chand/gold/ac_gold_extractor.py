@@ -67,11 +67,7 @@ class ACGoldExtractor:
             logger.info("Gold data fetched successfully.")
             # Return the result as a JSON string if pretty is True, otherwise return the result
             if pretty:
-                return (
-                    json.dumps(result, ensure_ascii=False, indent=4)
-                    if pretty
-                    else result
-                )
+                return json.dumps(result, ensure_ascii=False, indent=4)
             return result
         # Handle any exceptions that may occur during the fetching process
         except requests.RequestException as e:

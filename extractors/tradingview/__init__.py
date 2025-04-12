@@ -1,1 +1,0 @@
-from .trading_view_crypto_extractor import TradingViewCryptoExtractor

@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 
 
 from bots.telegram import ArzWatchBot
-from extractors.tradingview import TradingViewCryptoExtractor
 
 
 # Load environment variables from .env file
@@ -14,11 +13,8 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 
 def main():
-    # bot = ArzWatchBot(BASE_API_URL, TELEGRAM_BOT_TOKEN)
-    # bot.run()
-    test = TradingViewCryptoExtractor()
-    data = test.fetch_crypto_data(pretty=True)
-    print(data)
+    bot = ArzWatchBot(BASE_API_URL, TELEGRAM_BOT_TOKEN)
+    bot.run()
 
 
 if __name__ == "__main__":
