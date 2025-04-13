@@ -4,7 +4,7 @@ import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, Application, CommandHandler, ContextTypes
 
-from logger import LoggerFactory
+from app.core.logger import LoggerFactory
 from bots.telegram import messages
 from bots.telegram.db import get_total_users, upsert_user
 

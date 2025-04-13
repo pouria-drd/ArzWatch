@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 # Create the database directory in the root directory if it doesn't exist
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent.parent
 DATABASE_DIR = ROOT_DIR / "database" / "telegram" / "users.json"
 
 # If the data file doesn't exist, create it

@@ -23,7 +23,7 @@ class LoggerFactory:
             logging.Logger: The created logger.
         """
         # Root directory (adjust as needed)
-        ROOT_DIR = Path(__file__).resolve().parent.parent
+        ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
         log_dir = ROOT_DIR / "logs" / log_subdir
         os.makedirs(log_dir, exist_ok=True)
 
