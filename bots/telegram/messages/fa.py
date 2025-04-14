@@ -36,12 +36,12 @@ def gold(golds, last_updated) -> str:
     jalali_time = JalaliDateTime.to_jalali(tehran_time)
 
     persian_date = jalali_time.strftime("%d %B %Y", locale="fa")
-    persian_time = jalali_time.strftime("%H:%M:%S", locale="fa")
+    persian_time = jalali_time.strftime("%H:%M", locale="fa")
 
     response = f"""
 <b>📊 قیمت طلا</b>
 
-⏰ <b>{persian_date}</b> | <b>{persian_time}</b>
+🗓️ <b>{persian_date}</b> ⏰ <b>{persian_time}</b>
 ———————————————
 """
     for gold in golds:
@@ -69,12 +69,12 @@ def coin(coins, last_updated) -> str:
     jalali_time = JalaliDateTime.to_jalali(tehran_time)
 
     persian_date = jalali_time.strftime("%d %B %Y", locale="fa")
-    persian_time = jalali_time.strftime("%H:%M:%S", locale="fa")
+    persian_time = jalali_time.strftime("%H:%M", locale="fa")
 
     response = f"""
 <b>📊 قیمت سکه</b>
 
-⏰ <b>{persian_date}</b> | <b>{persian_time}</b>
+🗓️ <b>{persian_date}</b> ⏰ <b>{persian_time}</b>
 ———————————————
 """
     for coin in coins:
