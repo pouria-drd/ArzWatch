@@ -16,7 +16,7 @@ def gold_price():
     gold_price = get_gold_price()
     last_updated = get_last_updated()
 
-    return success_response(data={"gold": gold_price, "last_updated": last_updated})
+    return success_response(data={"golds": gold_price, "last_updated": last_updated})
 
 
 @router.get("/coin")
@@ -26,4 +26,4 @@ def coin_price():
     coin_price = get_coin_price()
     last_updated = get_last_updated()
 
-    return success_response(data={"coin": coin_price, "last_updated": last_updated})
+    return success_response(data={"coins": coin_price, "last_updated": last_updated})

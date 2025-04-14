@@ -1,11 +1,11 @@
 import os
 import json
-from pathlib import Path
+from core.settings import BASE_DIR
 from datetime import datetime, timezone
 
 # Create the database directory in the root directory if it doesn't exist
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent.parent
-DATABASE_DIR = ROOT_DIR / "database" / "telegram" / "users.json"
+base_dir = BASE_DIR
+DATABASE_DIR = base_dir / "database" / "telegram" / "users.json"
 
 # If the data file doesn't exist, create it
 if not os.path.exists(DATABASE_DIR):

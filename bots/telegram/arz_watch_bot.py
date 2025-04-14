@@ -4,7 +4,7 @@ import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, Application, CommandHandler, ContextTypes
 
-from app.core.logger import LoggerFactory
+from logger import LoggerFactory
 from bots.telegram import messages
 from bots.telegram.db import get_total_users, upsert_user
 
@@ -19,8 +19,7 @@ class ArzWatchBot:
     ArzWatchBot is a Telegram bot that sends real-time currency and price updates.
     """
 
-    def __init__(self, base_api_url: str, token: str):
-
+    def __init__(self, base_api_url: str, token: str, extractor: str = "tgju"):
         # Check if the BASE_API_URL is not empty
         if not base_api_url:
             # Raise an exception with a message
@@ -32,10 +31,10 @@ class ArzWatchBot:
             raise ValueError("❌ Telegram bot token not found in .env file!")
 
         self.token = token
+        # Set the extractor
+        self.extractor = extractor
         # Create a base API URL
-        base_api_url += "/" if not base_api_url.endswith("/") else ""
         self.base_api_url = base_api_url
-
         # Create a logger for the bot
         self.logger = LoggerFactory.get_logger(
             "ArzWatchBot", "bots/telegram/arz_watch_bot"
@@ -104,7 +103,7 @@ class ArzWatchBot:
             context (ContextTypes.DEFAULT_TYPE): The context object.
         """
         # Get the gold data from the api
-        api_url = self.base_api_url + "prices/gold/"
+        api_url = self.base_api_url + f"/{self.extractor}/prices/gold/"
         response = requests.get(api_url, timeout=7)
         # Check if the response is not 200
         if response.status_code != 200:
@@ -144,7 +143,7 @@ class ArzWatchBot:
             context (ContextTypes.DEFAULT_TYPE): The context object.
         """
         # Get the gold data from the api
-        api_url = self.base_api_url + "prices/coin/"
+        api_url = self.base_api_url + f"/{self.extractor}/prices/coin/"
         response = requests.get(api_url, timeout=7)
         # Check if the response is not 200
         if response.status_code != 200:

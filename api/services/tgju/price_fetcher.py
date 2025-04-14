@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
-from apscheduler.schedulers.background import BackgroundScheduler
 from extractors.tgju import TGJUCoinExtractor, TGJUGoldExtractor
+
 
 # Initialize the scrapers
 tgju_coin_extractor = TGJUCoinExtractor()
@@ -30,6 +30,7 @@ def get_last_updated():
 
 def fetch_and_cache_data():
     """Fetches and caches data from the scrapers."""
+
     # Set the last updated time to now
     now = datetime.now(timezone.utc).isoformat()
     cached_data["last_updated"] = now
@@ -43,12 +44,3 @@ def fetch_and_cache_data():
     tgju_gold_data = tgju_gold_extractor.fetch_data()
     if tgju_gold_data:
         cached_data["gold"] = tgju_gold_data
-
-
-# schedule the tasks to run every 5 minutes
-def start_scheduler():
-    """Starts the scheduler to run the fetch_and_cache_data function every 5 minutes."""
-    scheduler = BackgroundScheduler()
-    # Run every 3 minutes
-    scheduler.add_job(fetch_and_cache_data, "interval", minutes=5)
-    scheduler.start()

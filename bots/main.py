@@ -1,18 +1,13 @@
-import os
-from dotenv import load_dotenv
-
-
 from bots.telegram import ArzWatchBot
-
-
-# Load environment variables from .env file
-load_dotenv()
-
-BASE_API_URL = os.getenv("BASE_API_URL")
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+from core.settings import BASE_API_URL, TELEGRAM_BOT_TOKEN
 
 
 def main():
+    if not BASE_API_URL or not TELEGRAM_BOT_TOKEN:
+        raise ValueError(
+            "BASE_API_URL and TELEGRAM_BOT_TOKEN must be set in environment variables."
+        )
+
     bot = ArzWatchBot(BASE_API_URL, TELEGRAM_BOT_TOKEN)
     bot.run()
 

@@ -1,7 +1,7 @@
 import os
 import logging
-from pathlib import Path
 from datetime import datetime
+from core.settings import BASE_DIR
 from colorlog import ColoredFormatter
 
 
@@ -23,8 +23,8 @@ class LoggerFactory:
             logging.Logger: The created logger.
         """
         # Root directory (adjust as needed)
-        ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
-        log_dir = ROOT_DIR / "logs" / log_subdir
+        base_dir = BASE_DIR
+        log_dir = base_dir / "logs" / log_subdir
         os.makedirs(log_dir, exist_ok=True)
 
         # Log file path
