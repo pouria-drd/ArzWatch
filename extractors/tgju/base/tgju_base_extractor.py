@@ -35,9 +35,21 @@ class TGJUBaseExtractor(ABC):
             rows = self._get_table_rows(soup)
             self._close_driver()
 
-            result = [
-                self._parse_row(row) for row in rows if self._is_relevant_row(row)
-            ]
+            seen_titles = set()
+            result = []
+
+            for row in rows:
+                if not self._is_relevant_row(row):
+                    continue
+
+                title = row.find("th").text.strip()
+                title = self._format_title(title)
+
+                if title in seen_titles:
+                    continue
+
+                seen_titles.add(title)
+                result.append(self._parse_row(row))
 
             self.logger.info("Data fetched successfully from TGJU website.")
             return (
