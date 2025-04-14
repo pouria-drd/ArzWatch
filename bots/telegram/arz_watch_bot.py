@@ -1,5 +1,6 @@
 import logging
 import requests
+from datetime import datetime
 
 from telegram import Update
 from telegram.ext import ApplicationBuilder, Application, CommandHandler, ContextTypes
@@ -114,24 +115,19 @@ class ArzWatchBot:
         data = response.json()
 
         # Extract the last update time and format it
-        last_update = data.get("data", {}).get("last_update", "N/A")
-        time_part = last_update.split(" ")[0] if last_update != "N/A" else "N/A"
-        date_part = (
-            " ".join(last_update.split(" ")[2:]) if last_update != "N/A" else "N/A"
+        last_updated = datetime.fromisoformat(
+            data.get("data", {}).get("last_updated", "N/A")
         )
 
         gold_items = data.get("data", {}).get("golds", [])
 
         # Check if the gold data is valid
-        gram_18k = next((item for item in gold_items if "18" in item["title"]), None)
-        misqal = next((item for item in gold_items if "Misqal" in item["title"]), None)
-
-        if not gram_18k or not misqal:
+        if not gold_items:
             await update.message.reply_text(messages.error())
             return
 
         await update.message.reply_text(
-            messages.gold(misqal, gram_18k, date_part, time_part), parse_mode="HTML"
+            messages.gold(gold_items, last_updated), parse_mode="HTML"
         )
 
     async def handle_coin(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -154,19 +150,9 @@ class ArzWatchBot:
         data = response.json()
 
         # Extract the last update time and format it
-        last_update = data.get("data", {}).get("last_update", "N/A")
-        time_part = last_update.split(" ")[0] if last_update != "N/A" else "N/A"
-        date_part = (
-            " ".join(last_update.split(" ")[2:]) if last_update != "N/A" else "N/A"
+        last_updated = datetime.fromisoformat(
+            data.get("data", {}).get("last_updated", "N/A")
         )
-
-        coin_title_map = {
-            "Imami Coin": "سکه امامی",
-            "Bahare Azadi Coin": "سکه بهار آزادی",
-            "Half Coin": "نیم سکه",
-            "Quarter Coin": "ربع سکه",
-            "Gram Coin": "سکه گرمی",
-        }
 
         coin_items = data.get("data", {}).get("coins", [])
 
@@ -175,7 +161,7 @@ class ArzWatchBot:
             return
 
         await update.message.reply_text(
-            messages.coin(coin_items, date_part, time_part, coin_title_map),
+            messages.coin(coin_items, last_updated),
             parse_mode="HTML",
         )
 

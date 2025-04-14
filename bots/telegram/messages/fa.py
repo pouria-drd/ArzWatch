@@ -1,3 +1,7 @@
+from zoneinfo import ZoneInfo
+from persiantools.jdatetime import JalaliDateTime
+
+
 def welcome(username: str, total_users: int) -> str:
     return f"""
 سلام 👋 <b>{username}</b> عزیز!  
@@ -26,43 +30,71 @@ def help() -> str:
 """
 
 
-def gold(misqal, gram_18k, date_part, time_part) -> str:
-    return f"""
+def gold(golds, last_updated) -> str:
+    # Convert UTC to Tehran timezone
+    tehran_time = last_updated.astimezone(ZoneInfo("Asia/Tehran"))
+    jalali_time = JalaliDateTime.to_jalali(tehran_time)
+
+    persian_date = jalali_time.strftime("%d %B %Y", locale="fa")
+    persian_time = jalali_time.strftime("%H:%M:%S", locale="fa")
+
+    response = f"""
 <b>📊 قیمت لحظه‌ای طلا</b>
 
-🗓️ <b>{date_part}</b>   ⏰ <b>{time_part}</b>
-———————————————
-
-<b>🔸 مثقال طلا</b>
-💰 قیمت: <b>{misqal['price']} تومان</b>
-📈 تغییر: <code>{misqal['change']}</code>
-🎈 حباب: <code>{misqal['bubble_amount']}</code> ({misqal['bubble_percentage']})
-———————————————
-
-<b>🔸 هر گرم طلای ۱۸ عیار</b>
-💰 قیمت: <b>{gram_18k['price']} تومان</b>
-📈 تغییر: <code>{gram_18k['change']}</code>
-🎈 حباب: <code>{gram_18k['bubble_amount']}</code> ({gram_18k['bubble_percentage']})
+⏰ <b>{persian_date}</b> | <b>{persian_time}</b>
 ———————————————
 """
+    for gold in golds:
+        fa_title = gold["title"]
+        # Format the price with commas
+        formatted_price = "{:,}".format(int(int(gold["price"]) / 10))
+
+        # Check if the change is negative or positive
+        change_symbol = "📉" if int(gold["change_amount"]) < 0 else "📈"
+
+        # Adding the gold data to the response
+        response += f"""
+🔹 <b>{fa_title}</b>
+💰 <b>قیمت:</b> <code>{formatted_price}</code> تومان
+{change_symbol} <b>مقدار تغییر:</b> <code>{gold['change_amount']}</code>
+{change_symbol} <b>درصد تغییر:</b> <code>{gold['change_percentage']}</code>
+———————————————
+"""
+    return response
 
 
-def coin(coins, date_part, time_part, title_map) -> str:
+def coin(coins, last_updated) -> str:
+    # Convert UTC to Tehran timezone
+    tehran_time = last_updated.astimezone(ZoneInfo("Asia/Tehran"))
+    jalali_time = JalaliDateTime.to_jalali(tehran_time)
+
+    persian_date = jalali_time.strftime("%d %B %Y", locale="fa")
+    persian_time = jalali_time.strftime("%H:%M:%S", locale="fa")
+
     response = f"""
-<b>🪙 قیمت لحظه‌ای سکه</b>
+<b>📊 قیمت سکه</b>
 
-🗓️ <b>{date_part}</b>   ⏰ <b>{time_part}</b>
+⏰ <b>{persian_date}</b> | <b>{persian_time}</b>
 ———————————————
 """
     for coin in coins:
-        fa_title = title_map.get(coin["title"], coin["title"])
+        fa_title = coin["title"]
+
+        # Format the price with commas
+        formatted_price = "{:,}".format(int(int(coin["price"]) / 10))
+
+        # Check if the change is negative or positive
+        change_symbol = "📉" if int(coin["change_amount"]) < 0 else "📈"
+
+        # Adding the coin data to the response
         response += f"""
-<b>🔹 {fa_title}</b>
-💰 قیمت: <b>{coin['price']} تومان</b>
-📈 تغییر: <code>{coin['change']}</code>
-🎈 حباب: <code>{coin['bubble_amount']}</code> ({coin['bubble_percentage']})
+🔹 <b>{fa_title}</b>
+💰 <b>قیمت:</b> <code>{formatted_price}</code> تومان
+{change_symbol} <b>مقدار تغییر:</b> <code>{coin['change_amount']}</code>
+{change_symbol} <b>درصد تغییر:</b> <code>{coin['change_percentage']}</code>
 ———————————————
 """
+
     return response
 
 
