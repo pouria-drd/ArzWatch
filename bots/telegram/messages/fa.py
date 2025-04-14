@@ -98,5 +98,50 @@ def coin(coins, last_updated) -> str:
     return response
 
 
+def currency(currencies, last_updated) -> str:
+    # Convert UTC to Tehran timezone
+    tehran_time = last_updated.astimezone(ZoneInfo("Asia/Tehran"))
+    jalali_time = JalaliDateTime.to_jalali(tehran_time)
+
+    persian_date = jalali_time.strftime("%d %B %Y", locale="fa")
+    persian_time = jalali_time.strftime("%H:%M", locale="fa")
+
+    # Flag mapping
+    flag_map = {
+        "دلار": "🇺🇸",
+        "یورو": "🇪🇺",
+        "درهم امارات": "🇦🇪",
+        "پوند انگلیس": "🇬🇧",
+        "لیر ترکیه": "🇹🇷",
+        "یوان چین": "🇨🇳",
+        "روبل روسیه": "🇷🇺",
+    }
+
+    response = f"""
+<b>📊 قیمت ارزها</b>
+
+🗓️ <b>{persian_date}</b> ⏰ <b>{persian_time}</b>
+———————————————
+"""
+    for currency in currencies:
+        fa_title = currency["title"]
+
+        flag = flag_map.get(fa_title, "🏳️")  # Default flag if not found
+        # Format the price with commas
+        formatted_price = "{:,}".format(int(int(currency["price"]) / 10))
+        # Check if the change is negative or positive
+        change_symbol = "📉" if int(currency["change_amount"]) < 0 else "📈"
+        # Adding the currency data to the response
+        response += f"""
+🔹 <b>{fa_title}</b> {flag}
+💰 <b>قیمت:</b> <code>{formatted_price}</code> تومان
+{change_symbol} <b>مقدار تغییر:</b> <code>{currency['change_amount']}</code>
+{change_symbol} <b>درصد تغییر:</b> <code>{currency['change_percentage']}</code>
+———————————————
+"""
+
+    return response
+
+
 def error() -> str:
     return "❌ خطای داخلی. لطفا دوباره امتحان کن."

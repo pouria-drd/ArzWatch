@@ -3,6 +3,7 @@ from api.utils.responses import success_response
 from api.services.tgju import (
     get_gold_price,
     get_coin_price,
+    get_currency_price,
     get_last_updated,
 )
 
@@ -27,3 +28,15 @@ def coin_price():
     last_updated = get_last_updated()
 
     return success_response(data={"coins": coin_price, "last_updated": last_updated})
+
+
+@router.get("/currency")
+def currency_price():
+    """Get the currency price from the cache"""
+    # Get the last updated time and currency price from the cache
+    currency_price = get_currency_price()
+    last_updated = get_last_updated()
+
+    return success_response(
+        data={"currencies": currency_price, "last_updated": last_updated}
+    )

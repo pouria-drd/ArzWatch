@@ -57,6 +57,8 @@ class ArzWatchBot:
         self.app.add_handler(CommandHandler("help", self.handle_help))
         self.app.add_handler(CommandHandler("gold", self.handle_gold))
         self.app.add_handler(CommandHandler("coin", self.handle_coin))
+        # self.app.add_handler(CommandHandler("crypto", self.handle_crypto))
+        self.app.add_handler(CommandHandler("currency", self.handle_currency))
 
     async def handle_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """
@@ -138,7 +140,7 @@ class ArzWatchBot:
             update (Update): The update object.
             context (ContextTypes.DEFAULT_TYPE): The context object.
         """
-        # Get the gold data from the api
+        # Get the coin data from the api
         api_url = self.base_api_url + f"/{self.extractor}/prices/coin/"
         response = requests.get(api_url, timeout=7)
         # Check if the response is not 200
@@ -162,6 +164,41 @@ class ArzWatchBot:
 
         await update.message.reply_text(
             messages.coin(coin_items, last_updated),
+            parse_mode="HTML",
+        )
+
+    async def handle_currency(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """
+        Handles the currency command.
+
+        Args:
+            update (Update): The update object.
+            context (ContextTypes.DEFAULT_TYPE): The context object.
+        """
+        # Get the currency data from the api
+        api_url = self.base_api_url + f"/{self.extractor}/prices/currency/"
+        response = requests.get(api_url, timeout=7)
+        # Check if the response is not 200
+        if response.status_code != 200:
+            # Reply with an error message
+            await update.message.reply_text(messages.error())
+            return
+
+        data = response.json()
+
+        # Extract the last update time and format it
+        last_updated = datetime.fromisoformat(
+            data.get("data", {}).get("last_updated", "N/A")
+        )
+
+        currency_items = data.get("data", {}).get("currencies", [])
+
+        if not currency_items:
+            await update.message.reply_text(messages.error())
+            return
+
+        await update.message.reply_text(
+            messages.currency(currency_items, last_updated),
             parse_mode="HTML",
         )
 

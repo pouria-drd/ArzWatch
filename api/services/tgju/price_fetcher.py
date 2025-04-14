@@ -1,26 +1,29 @@
 from datetime import datetime, timezone
-from extractors.tgju import TGJUCoinExtractor, TGJUGoldExtractor
+from extractors.tgju import TGJUCoinExtractor, TGJUGoldExtractor, TGJUCurrencyExtractor
 
 
 # Initialize the scrapers
 tgju_coin_extractor = TGJUCoinExtractor()
 tgju_gold_extractor = TGJUGoldExtractor()
-
+tgju_currency_extractor = TGJUCurrencyExtractor()
 
 # Initialize the cached data
-cached_data = {"gold": None, "coin": None, "last_updated": None}
+cached_data = {"gold": None, "coin": None, "currency": None, "last_updated": None}
 
 
 def get_gold_price():
     """Get the gold price from the cache"""
     return cached_data["gold"]
-    # return gold_extractor.fetch_data()
 
 
 def get_coin_price():
     """Get the coin price from the cache"""
     return cached_data["coin"]
-    # return coin_extractor.fetch_data()
+
+
+def get_currency_price():
+    """Get the currency price from the cache"""
+    return cached_data["currency"]
 
 
 def get_last_updated():
@@ -44,3 +47,8 @@ def fetch_and_cache_data():
     tgju_gold_data = tgju_gold_extractor.fetch_data()
     if tgju_gold_data:
         cached_data["gold"] = tgju_gold_data
+
+    # Fetch TGJU currency data
+    tgju_currency_data = tgju_currency_extractor.fetch_data()
+    if tgju_currency_data:
+        cached_data["currency"] = tgju_currency_data
