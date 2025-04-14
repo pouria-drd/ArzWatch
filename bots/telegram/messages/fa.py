@@ -39,7 +39,7 @@ def gold(golds, last_updated) -> str:
     persian_time = jalali_time.strftime("%H:%M:%S", locale="fa")
 
     response = f"""
-<b>📊 قیمت لحظه‌ای طلا</b>
+<b>📊 قیمت طلا</b>
 
 ⏰ <b>{persian_date}</b> | <b>{persian_time}</b>
 ———————————————
