@@ -1,5 +1,5 @@
-from app.core.logger import LoggerFactory
-from app.extractors.tgju.base import TGJUBaseExtractor
+from logger import LoggerFactory
+from extractors.tgju.base import TGJUBaseExtractor
 
 
 class TGJUCoinExtractor(TGJUBaseExtractor):

@@ -1,4 +1,4 @@
-from .tgju import prices
+from .urls import prices
 from fastapi import APIRouter
 
 router = APIRouter()

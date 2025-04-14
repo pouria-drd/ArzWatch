@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from app.api.services.tgju import (
+from api.utils.responses import success_response
+from api.services.tgju import (
     get_gold_price,
     get_coin_price,
     get_last_updated,
@@ -15,7 +16,7 @@ def gold_price():
     gold_price = get_gold_price()
     last_updated = get_last_updated()
 
-    return {"data": gold_price, "last_updated": last_updated}
+    return success_response(data={"gold": gold_price, "last_updated": last_updated})
 
 
 @router.get("/coin")
@@ -25,4 +26,4 @@ def coin_price():
     coin_price = get_coin_price()
     last_updated = get_last_updated()
 
-    return {"data": coin_price, "last_updated": last_updated}
+    return success_response(data={"coin": coin_price, "last_updated": last_updated})
