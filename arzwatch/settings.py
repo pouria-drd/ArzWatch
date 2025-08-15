@@ -28,7 +28,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # 3rd party apps
     "corsheaders",
+    "django_filters",
     "rest_framework",
+    "drf_spectacular",
     # Custom apps
     "scraping",
 ]
@@ -167,15 +169,31 @@ REST_FRAMEWORK = {
         # "rest_framework.permissions.IsAuthenticated",  # Only authenticated users can access
         "rest_framework.permissions.AllowAny",  #  Allow anonymous users to access
     ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 100,
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.UserRateThrottle",  # Throttle based on user rate
         "rest_framework.throttling.AnonRateThrottle",  # Throttle based on anonymous user rate
         "rest_framework.throttling.ScopedRateThrottle",  # Throttle based on scope
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "user": os.getenv("USER_THROTTLE_RATE", "20/minute"),
         "anon": os.getenv("ANON_THROTTLE_RATE", "10/minute"),
+        "user": os.getenv("USER_THROTTLE_RATE", "20/minute"),
+        "scraping": os.getenv("SCRAPING_THROTTLE_RATE", "60/minute"),
     },
+}
+
+# ---------------------------------------------------------------
+# SPECTACULAR Configuration
+# ---------------------------------------------------------------
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "ArzWatch API",
+    "DESCRIPTION": "API for ArzWatch",
+    "VERSION": "0.0.1",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # OTHER SETTINGS
 }
 
 # ---------------------------------------------------------------
@@ -220,6 +238,11 @@ LOGGING = {
             "filename": os.path.join(LOGS_DIR, "scraping.log"),
             "formatter": "json",
         },
+        "scraping_api_file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOGS_DIR, "scraping_api.log"),
+            "formatter": "json",
+        },
     },
     "loggers": {
         # "": {
@@ -234,6 +257,11 @@ LOGGING = {
         # },
         "scraping": {
             "handlers": ["console", "scraping_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "scraping_api": {
+            "handlers": ["console", "scraping_api_file"],
             "level": "INFO",
             "propagate": False,
         },

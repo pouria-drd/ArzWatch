@@ -121,6 +121,7 @@ ArzWatch is a Python-based web scraping application designed to fetch and store 
     # Throttling limits the number of requests a user can make in a given period
     USER_THROTTLE_RATE="20/minute"
     ANON_THROTTLE_RATE="10/minute"
+    SCRAPING_THROTTLE_RATE="60/minute"
 
 
     # ---------------------------------------------------------------

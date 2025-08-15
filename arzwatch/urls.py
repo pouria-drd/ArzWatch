@@ -5,6 +5,7 @@ from django.conf import settings
 from rest_framework import routers
 from django.urls import path, include
 from django.conf.urls.static import static
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 
 # Loads the variables from the .env file into the environment
@@ -17,7 +18,16 @@ base_url: str = os.getenv("BASE_URL", "")
 urlpatterns = [
     path(base_url, include(router.urls)),
     # Admin URL without base_url
-    path(os.getenv("ADMIN_URL", "admin/"), admin.site.urls),
+    path(os.getenv("ADMIN_URL", "admin"), admin.site.urls),
+    # API v1 routes
+    path("v1/", include("scraping.api.urls")),
+    # OpenAPI schema and Swagger UI
+    path("v1/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "v1/docs/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
 ]
 
 # Only add base_url once at the root level
