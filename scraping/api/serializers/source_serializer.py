@@ -4,33 +4,32 @@ from ...models import SourceModel, SourceConfigModel
 
 class SourceSerializer(serializers.ModelSerializer):
     baseUrl = serializers.URLField(read_only=True, source="base_url")
-    updatedAt = serializers.DateTimeField(read_only=True, source="updated_at")
-    createdAt = serializers.DateTimeField(read_only=True, source="created_at")
+    # updatedAt = serializers.DateTimeField(read_only=True, source="updated_at")
+    # createdAt = serializers.DateTimeField(read_only=True, source="created_at")
 
     class Meta:
         model = SourceModel
         fields = [
-            "id",
+            # "id",
             "name",
             "baseUrl",
-            "enabled",
-            "updatedAt",
-            "createdAt",
+            # "updatedAt",
+            # "createdAt",
         ]
-        read_only_fields = ["id", "name", "enabled"]
+        read_only_fields = ["id", "name"]
 
 
 class SourceConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = SourceConfigModel
         fields = [
-            "id",
+            # "id",
             "source",
             "instrument",
             "path",
         ]
         read_only_fields = [
-            "id",
+            # "id",
             "source",
             "instrument",
             "path",
