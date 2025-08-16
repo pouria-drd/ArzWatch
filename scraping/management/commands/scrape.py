@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         source_name = options["source"].lower()
-        instruments = options["instruments"]
+        instruments = [i.upper() for i in options["instruments"]]
 
         # Map sources to scraper classes
         scraper_map = {

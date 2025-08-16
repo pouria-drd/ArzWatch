@@ -9,6 +9,9 @@ class PriceTickFilter(FilterSet):
     instrument__symbol_contains = CharFilter(
         field_name="instrument__symbol", lookup_expr="contains"
     )
+    instrument__category = CharFilter(
+        field_name="instrument__category", lookup_expr="contains"
+    )
     source__name = CharFilter(field_name="source__name", lookup_expr="exact")
     source__name_contains = CharFilter(
         field_name="source__name", lookup_expr="contains"
@@ -24,6 +27,7 @@ class PriceTickFilter(FilterSet):
         fields = [
             "instrument__symbol",
             "instrument__symbol_contains",
+            "instrument__category",
             "source__name",
             "source__name_contains",
             "currency",
