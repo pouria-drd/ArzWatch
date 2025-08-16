@@ -7,7 +7,7 @@ from ..serializers import InstrumentSerializer
 
 
 class InstrumentListView(ListAPIView):
-    queryset = InstrumentModel.objects.all()
+    queryset = InstrumentModel.objects.filter(enabled=True)
     serializer_class = InstrumentSerializer
 
     throttle_scope = "scraping"

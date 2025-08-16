@@ -7,7 +7,7 @@ from ..serializers import SourceSerializer
 
 
 class SourceListView(ListAPIView):
-    queryset = SourceModel.objects.all()
+    queryset = SourceModel.objects.filter(enabled=True)
     serializer_class = SourceSerializer
 
     throttle_scope = "scraping"

@@ -39,7 +39,9 @@ class LatestPriceView(RetrieveAPIView):
 
         try:
             price_tick = PriceTickModel.objects.filter(
-                instrument__symbol=symbol
+                instrument__enabled=True,
+                instrument__symbol=symbol,
+                source__enabled=True,
             ).latest("timestamp")
             serializer = self.get_serializer(price_tick)
             cache.set(cache_key, serializer.data, timeout=300)  # Cache for 5 minutes
@@ -152,4 +154,11 @@ class PriceTickListView(ListAPIView):
         except ValueError as e:
             logger.error(f"Invalid timestamp format: {e}")
             raise ValidationError("Timestamps must be in YYYY-MM-DD or ISO 8601 format")
+
+        # Filter by source and instrument enabled status
+        queryset = queryset.filter(
+            source__enabled=True,
+            instrument__enabled=True,
+        )
+
         return queryset
