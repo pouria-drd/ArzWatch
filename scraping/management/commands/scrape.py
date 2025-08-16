@@ -1,6 +1,6 @@
 import logging
 from ...models import SourceModel
-from scraping.sources import TgjuScraper
+from ...sources import TgjuScraper, ZarminexScraper
 from django.core.management.base import BaseCommand, CommandError
 
 logger = logging.getLogger(__name__)
@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "source", type=str, help="Source to scrape (e.g., 'tgju', 'alanchand')"
+            "source", type=str, help="Source to scrape (e.g., 'tgju', 'mili')"
         )
         parser.add_argument(
             "instruments",
@@ -27,7 +27,7 @@ class Command(BaseCommand):
         # Map sources to scraper classes
         scraper_map = {
             "tgju": TgjuScraper,
-            "alanchand": TgjuScraper,  # Placeholder for future implementation
+            "zarminex": ZarminexScraper,
         }
 
         scraper_class = scraper_map.get(source_name)

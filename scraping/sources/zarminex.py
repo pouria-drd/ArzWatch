@@ -14,16 +14,15 @@ from ..models import SourceConfigModel
 logger = logging.getLogger(__name__)
 
 
-class TgjuScraper(BaseScraper):
+class ZarminexScraper(BaseScraper):
     """
-    Scraper to fetch prices from https://tgju.org
+    Scraper to fetch gold prices from https://zarminex.ir/.
     Uses SourceConfigModel for configurations.
     Returns a list of dictionaries with symbol, price, currency, and metadata.
     """
 
     def __init__(self, source, auto_driver=False, instruments: List[str] = None):  # type: ignore
         super().__init__(source, auto_driver)
-        # If instruments provided, filter instruments; otherwise, use all instruments for the source
         self.source_configs = SourceConfigModel.objects.filter(source=source)
         if instruments:
             self.source_configs = self.source_configs.filter(
@@ -43,59 +42,52 @@ class TgjuScraper(BaseScraper):
             symbol = config.instrument.symbol
             path = config.path
             url = f"{self.source.base_url}/{path}"
+
             try:
                 logger.info(f"Fetching data for {symbol} from {url}")
                 self.driver.get(url)  # type: ignore
 
-                # Wait for the table to load (timeout after 10 seconds)
-                WebDriverWait(self.driver, 10).until(  # type: ignore
+                # Wait for the main gold price to load
+                WebDriverWait(self.driver, 20).until(  # type: ignore
                     EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, "tbody.table-padding-lg")
+                        (By.XPATH, "//span[contains(text(),'ریال')]")
                     )
                 )
 
-                # Parse HTML with BeautifulSoup
+                # Parse page source
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore
-                table = soup.select_one("tbody.table-padding-lg")
-                if not table:
-                    raise ValueError("Price table not found")
-
-                # Extract rows
-                rows = table.find_all("tr")
-                if not rows:
-                    raise ValueError("No rows found in price table")
 
                 # Initialize data dictionary
-                data = {
+                data: Dict[str, Any] = {
                     "symbol": symbol,
                     "currency": "IRR",
                     "meta": {"source_url": url},
                 }
 
-                # Extract data from rows
-                for row in rows:
-                    cells = row.find_all("td")  # type: ignore
-                    if len(cells) != 2:
-                        continue
-                    label = cells[0].text.strip()
-                    value = cells[1].text.strip()
+                # Current price
+                price_elem = soup.find("span", text=lambda x: x and "ریال" in x)  # type: ignore
+                if price_elem:
+                    price_str = (
+                        price_elem.text.replace(",", "").replace("ریال", "").strip()
+                    )
+                    data["price"] = Decimal(price_str)
 
-                    if label == "نرخ فعلی":  # Current price
-                        price_str = value.replace(",", "")  # Remove commas
-                        data["price"] = Decimal(price_str)
-                    elif label == "بالاترین قیمت روز":  # Highest price
-                        data["meta"]["highest_price"] = value.replace(",", "")
-                    elif label == "پایین ترین قیمت روز":  # Lowest price
-                        data["meta"]["lowest_price"] = value.replace(",", "")
-                    elif label == "درصد تغییر نسبت به روز گذشته":  # Percentage change
-                        data["meta"]["change_percentage"] = value
-                    elif label == "زمان ثبت آخرین نرخ":  # Timestamp
-                        data["meta"]["timestamp"] = value
-                    elif label == "قیمت ریالی":
-                        data["meta"]["rial_price"] = value.replace(",", "")
+                # Last update date
+                last_update_elem = soup.find("span", text=lambda x: x and "/" in x)  # type: ignore
+                if last_update_elem:
+                    data["meta"]["last_update"] = last_update_elem.text.strip()
 
-                if "price" not in data:
-                    raise ValueError("Current price not found")
+                # Percentage change
+                perc_change_elem = soup.find("span", text=lambda x: x and "%" in x)  # type: ignore
+                if perc_change_elem:
+                    data["meta"]["change_percentage"] = perc_change_elem.text.strip()
+
+                # Amount change
+                amount_change_elem = perc_change_elem.find_parent("div").find_next_sibling("div")  # type: ignore
+                if amount_change_elem:
+                    data["meta"][
+                        "change_amount"
+                    ] = amount_change_elem.text.strip().replace(",", "")
 
                 results.append(data)
 
