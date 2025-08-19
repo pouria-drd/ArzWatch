@@ -1,6 +1,7 @@
 import logging
 from rest_framework import status
 from django.core.cache import cache
+from rest_framework.request import Request
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.response import Response
@@ -8,9 +9,9 @@ from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
-from ...models import PriceTickModel
 from ..filters import PriceTickFilter
 from ..serializers import PriceTickSerializer
+from ...models import PriceTickModel, InstrumentModel
 
 logger = logging.getLogger("scraping_api")
 
@@ -26,10 +27,11 @@ class LatestPriceView(RetrieveAPIView):
     throttle_classes = [ScopedRateThrottle]
 
     @extend_schema(
-        description="Retrieve the latest price tick for a specific instrument symbol.",
+        description="Retrieve the latest price tick for a specific instrument symbol. "
+        "Tries to use the instrument's default source first, falling back to any enabled source if unavailable.",
         parameters=[OpenApiParameter(name="symbol", type=str, location="path")],
     )
-    def get(self, request, *args, **kwargs):
+    def get(self, request: Request, *args, **kwargs):
         symbol = kwargs["instrument__symbol"].upper()
         cache_key = f"latest_price_{symbol}"
         cached_data = cache.get(cache_key)
@@ -38,21 +40,47 @@ class LatestPriceView(RetrieveAPIView):
             return Response(cached_data)
 
         try:
-            price_tick = PriceTickModel.objects.filter(
-                instrument__enabled=True,
-                instrument__symbol=symbol,
-                source__enabled=True,
-            ).latest("timestamp")
-            serializer = self.get_serializer(price_tick)
-            cache.set(cache_key, serializer.data, timeout=300)  # Cache for 5 minutes
-            logger.info(f"Fetched latest price for {symbol}")
-            return Response(serializer.data)
-        except PriceTickModel.DoesNotExist:
+            instrument = InstrumentModel.objects.get(enabled=True, symbol=symbol)
+        except InstrumentModel.DoesNotExist:
+            logger.error(f"Instrument {symbol} not found or disabled")
+            return Response(
+                {"error": f"Instrument {symbol} not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        price_tick = None
+
+        # Try default source first if available and enabled
+        if instrument.default_source and instrument.default_source.enabled:
+            price_tick = (
+                PriceTickModel.objects.filter(
+                    instrument=instrument, source=instrument.default_source
+                )
+                .order_by("-timestamp")
+                .first()
+            )
+
+        # Fallback: use any enabled source
+        if not price_tick:
+            price_tick = (
+                PriceTickModel.objects.filter(
+                    instrument=instrument, source__enabled=True
+                )
+                .order_by("-timestamp")
+                .first()
+            )
+
+        if not price_tick:
             logger.error(f"No price data found for {symbol}")
             return Response(
                 {"error": f"No price data found for {symbol}"},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+        serializer = self.get_serializer(price_tick)
+        cache.set(cache_key, serializer.data, timeout=300)  # Cache for 5 minutes
+        logger.info(f"Fetched latest price for {symbol}")
+        return Response(serializer.data)
 
 
 class PriceTickListView(ListAPIView):
@@ -71,7 +99,8 @@ class PriceTickListView(ListAPIView):
     ordering = ["-timestamp"]  # Default sorting by latest timestamp
 
     @extend_schema(
-        description="List price ticks with optional filters for instrument, source, currency, price, timestamp, and source URL. Results are sorted by latest timestamp by default.",
+        description="List price ticks with optional filters. "
+        "Defaults to the instrument's default source, falling back to any enabled source.",
         parameters=[
             OpenApiParameter(
                 name="instrument__symbol",
@@ -143,6 +172,7 @@ class PriceTickListView(ListAPIView):
     )
     def get_queryset(self):
         queryset = super().get_queryset()
+
         # Additional validation for timestamp format
         timestamp_gte = self.request.query_params.get("timestamp_gte")
         timestamp_lte = self.request.query_params.get("timestamp_lte")
@@ -155,10 +185,25 @@ class PriceTickListView(ListAPIView):
             logger.error(f"Invalid timestamp format: {e}")
             raise ValidationError("Timestamps must be in YYYY-MM-DD or ISO 8601 format")
 
-        # Filter by source and instrument enabled status
-        queryset = queryset.filter(
-            source__enabled=True,
-            instrument__enabled=True,
-        )
+        # Apply default source preference with fallback
+        instrument_symbol = self.request.query_params.get("instrument__symbol")
+        if instrument_symbol:
+            try:
+                instrument = InstrumentModel.objects.get(
+                    symbol=instrument_symbol, enabled=True
+                )
+                if instrument.default_source and instrument.default_source.enabled:
+                    queryset = queryset.filter(
+                        instrument=instrument, source=instrument.default_source
+                    )
+                else:
+                    queryset = queryset.filter(
+                        instrument=instrument, source__enabled=True
+                    )
+            except InstrumentModel.DoesNotExist:
+                logger.warning(f"Instrument {instrument_symbol} not found or disabled")
+                queryset = queryset.none()
+        else:
+            queryset = queryset.filter(source__enabled=True, instrument__enabled=True)
 
         return queryset
