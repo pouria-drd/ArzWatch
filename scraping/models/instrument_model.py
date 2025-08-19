@@ -32,6 +32,15 @@ class InstrumentModel(models.Model):
         db_index=True,
     )
 
+    default_source = models.ForeignKey(
+        "SourceModel",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="instruments_default",
+        help_text="Default source for scraping this instrument.",
+    )
+
     enabled = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)

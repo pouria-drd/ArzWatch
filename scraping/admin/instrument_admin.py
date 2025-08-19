@@ -25,6 +25,7 @@ class InstrumentAdmin(admin.ModelAdmin):
         "symbol",
         "name",
         "category",
+        "default_source",
         # "get_price_tick_count",
         "enabled",
         "created_at",

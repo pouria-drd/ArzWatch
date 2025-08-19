@@ -32,6 +32,9 @@ class Command(BaseCommand):
 
         scraper_class = scraper_map.get(source_name)
         if not scraper_class:
+            logger.warning(
+                f"No scraper defined for source '{source_name}'. Supported sources: {list(scraper_map.keys())}"
+            )
             raise CommandError(
                 f"No scraper defined for source '{source_name}'. Supported sources: {list(scraper_map.keys())}"
             )
@@ -39,11 +42,14 @@ class Command(BaseCommand):
         try:
             source = SourceModel.objects.get(name__iexact=source_name, enabled=True)
         except SourceModel.DoesNotExist:
+            logger.warning(f"Source '{source_name}' not found or disabled")
             raise CommandError(f"Source '{source_name}' not found or disabled")
 
         try:
             self.stdout.write(
-                f"Scraping {source_name} for instruments: {instruments or 'all'}..."
+                self.style.SUCCESS(
+                    f"Scraping {source_name} for instruments: {instruments or 'all'}..."
+                )
             )
             scraper = scraper_class(source, auto_driver=False, instruments=instruments)
             scraper.scrape()

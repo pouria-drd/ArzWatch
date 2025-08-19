@@ -1,8 +1,9 @@
 import logging
-from django.db.models import Prefetch
 from rest_framework.generics import ListAPIView
 from drf_spectacular.utils import extend_schema
+from django.db.models.functions import Coalesce
 from rest_framework.throttling import ScopedRateThrottle
+from django.db.models import Prefetch, OuterRef, Subquery
 from django_filters.rest_framework import DjangoFilterBackend
 
 from ..serializers import InstrumentSerializer
@@ -32,12 +33,32 @@ class InstrumentListView(ListAPIView):
         if category:
             qs = qs.filter(category=category)
 
+        # Subquery: latest tick from default source (if exists and enabled)
+        default_tick_subquery = PriceTickModel.objects.filter(
+            instrument=OuterRef("pk"),
+            source=OuterRef("default_source"),
+            source__enabled=True,
+        ).order_by("-timestamp")
+
+        # Subquery: latest tick from any enabled source
+        fallback_tick_subquery = PriceTickModel.objects.filter(
+            instrument=OuterRef("pk"),
+            source__enabled=True,
+        ).order_by("-timestamp")
+
+        qs = qs.annotate(
+            default_tick_id=Subquery(default_tick_subquery.values("id")[:1]),
+            fallback_tick_id=Subquery(fallback_tick_subquery.values("id")[:1]),
+            latest_tick_id=Coalesce(
+                Subquery(default_tick_subquery.values("id")[:1]),
+                Subquery(fallback_tick_subquery.values("id")[:1]),
+            ),
+        )
+
         return qs.prefetch_related(
             Prefetch(
                 "price_ticks",
-                queryset=PriceTickModel.objects.filter(source__enabled=True).order_by(
-                    "-timestamp"
-                ),
-                to_attr="filtered_price_ticks",
+                queryset=PriceTickModel.objects.all(),
+                to_attr="all_price_ticks",
             )
         )

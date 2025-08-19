@@ -31,7 +31,14 @@ class InstrumentSerializer(serializers.ModelSerializer):
         ]
 
     def get_latestPriceTick(self, obj):
-        ticks = getattr(obj, "filtered_price_ticks", [])
-        if ticks:  # list is already ordered by -timestamp from queryset
-            return InstrumentPriceTickSerializer(ticks[0]).data
-        return None
+        ticks = getattr(obj, "all_price_ticks", [])
+        if not ticks:
+            return None
+
+        tick = next((t for t in ticks if t.id == obj.latest_tick_id), None)
+        if not tick:
+            return None
+
+        data = InstrumentPriceTickSerializer(tick).data
+        data["isFallback"] = tick.id != obj.default_tick_id  # type: ignore
+        return data
