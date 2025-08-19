@@ -8,7 +8,7 @@ class InstrumentModel(models.Model):
         GOLD = "gold", "Gold"
         COIN = "coin", "Coin"
         CURRENCY = "currency", "Currency"
-        CRYPTO = "crypto", "Cryptocurrency"
+        CRYPTO = "crypto", "Crypto"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
