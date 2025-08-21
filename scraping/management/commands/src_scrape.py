@@ -1,7 +1,7 @@
 import logging
 from ...models import SourceModel
-from ...sources import TgjuScraper, ZarminexScraper
 from django.core.management.base import BaseCommand, CommandError
+from ...sources import TgjuScraper, ZarminexScraper, WallexScraper
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ class Command(BaseCommand):
         scraper_map = {
             "tgju": TgjuScraper,
             "zarminex": ZarminexScraper,
+            "wallex": WallexScraper,
         }
 
         scraper_class = scraper_map.get(source_name)

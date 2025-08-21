@@ -1,3 +1,4 @@
+import time
 import logging
 from decimal import Decimal
 from bs4 import BeautifulSoup
@@ -53,6 +54,9 @@ class ZarminexScraper(BaseScraper):
                         (By.XPATH, "//span[contains(text(),'ریال')]")
                     )
                 )
+
+                # Stay on the page for 2 seconds before scraping
+                time.sleep(2)
 
                 # Parse page source
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore

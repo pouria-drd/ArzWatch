@@ -15,16 +15,15 @@ from ..models import SourceConfigModel
 logger = logging.getLogger(__name__)
 
 
-class TgjuScraper(BaseScraper):
+class WallexScraper(BaseScraper):
     """
-    Scraper to fetch prices from https://tgju.org
+    Scraper to fetch cryptocurrency prices from https://wallex.ir/.
     Uses SourceConfigModel for configurations.
-    Returns a list of dictionaries with symbol, price, currency, and metadata.
+    Returns a list of dictionaries with symbol, price (in USDT), currency, and metadata.
     """
 
     def __init__(self, source, auto_driver=False, instruments: List[str] = None):  # type: ignore
         super().__init__(source, auto_driver)
-        # If instruments provided, filter instruments; otherwise, use all instruments for the source
         self.source_configs = SourceConfigModel.objects.filter(source=source)
         if instruments:
             self.source_configs = self.source_configs.filter(
@@ -44,64 +43,71 @@ class TgjuScraper(BaseScraper):
             symbol = config.instrument.symbol
             path = config.path
             url = f"{self.source.base_url}/{path}"
+
             try:
                 logger.info(f"Fetching data for {symbol} from {url}")
                 self.driver.get(url)  # type: ignore
 
-                # Wait for the table to load (timeout after 10 seconds)
-                WebDriverWait(self.driver, 10).until(  # type: ignore
+                # Wait for the main price (USDT) to load
+                WebDriverWait(self.driver, 20).until(  # type: ignore
                     EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, "tbody.table-padding-lg")
+                        (By.CSS_SELECTOR, "div.MuiTypography-BodyLargeMedium span")
                     )
                 )
 
                 # Stay on the page for 2 seconds before scraping
                 time.sleep(2)
 
-                # Parse HTML with BeautifulSoup
+                # Parse page source
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore
-                table = soup.select_one("tbody.table-padding-lg")
-                if not table:
-                    raise ValueError("Price table not found")
-
-                # Extract rows
-                rows = table.find_all("tr")
-                if not rows:
-                    raise ValueError("No rows found in price table")
 
                 # Initialize data dictionary
-                data = {
+                data: Dict[str, Any] = {
                     "symbol": symbol,
-                    "currency": (
-                        "USDT" if config.instrument.category == "crypto" else "IRR"
-                    ),
+                    "currency": "USDT",
                     "meta": {"source_url": url},
                 }
 
-                # Extract data from rows
-                for row in rows:
-                    cells = row.find_all("td")  # type: ignore
-                    if len(cells) != 2:
-                        continue
-                    label = cells[0].text.strip()
-                    value = cells[1].text.strip()
+                # Current price (USDT)
+                price_elem = soup.select_one("div.MuiTypography-BodyLargeMedium span")
+                if price_elem:
+                    price_str = (
+                        price_elem.text.replace("$", "").replace(",", "").strip()
+                    )
+                    data["price"] = Decimal(price_str)
+                else:
+                    raise ValueError("Current price (USDT) not found")
 
-                    if label == "نرخ فعلی":  # Current price
-                        price_str = value.replace(",", "")  # Remove commas
-                        data["price"] = Decimal(price_str)
-                    elif label == "بالاترین قیمت روز":  # Highest price
-                        data["meta"]["highest_price"] = value.replace(",", "")
-                    elif label == "پایین ترین قیمت روز":  # Lowest price
-                        data["meta"]["lowest_price"] = value.replace(",", "")
-                    elif label == "درصد تغییر نسبت به روز گذشته":  # Percentage change
-                        data["meta"]["change_percentage"] = value
-                    elif label == "زمان ثبت آخرین نرخ":  # Timestamp
-                        data["meta"]["timestamp"] = value
-                    elif label == "قیمت ریالی":
-                        data["meta"]["rial_price"] = value.replace(",", "")
+                # Percentage change (24h)
+                perc_change_elem = soup.select_one("div.MuiStack-root span:last-child")
+                if perc_change_elem and "%" in perc_change_elem.find_parent().text:  # type: ignore
+                    data["meta"]["change_percentage"] = perc_change_elem.find_parent().text.strip()  # type: ignore
 
-                if "price" not in data:
-                    raise ValueError("Current price not found")
+                # IRR price
+                irr_price_elem = soup.select_one("div.MuiTypography-DisplayStrong span")
+                if irr_price_elem:
+                    irr_price_str = irr_price_elem.text.replace(",", "").strip()
+                    data["meta"]["price_irr"] = irr_price_str
+
+                # Highest price (24h, USDT)
+                highest_price_elem = soup.select_one(
+                    "div.MuiTypography-BodyMedium span", text=lambda x: x and "$" in x
+                )
+                if highest_price_elem:
+                    data["meta"]["highest_price_usdt"] = (
+                        highest_price_elem.text.replace("$", "")
+                        .replace(",", "")
+                        .strip()
+                    )
+
+                # Lowest price (24h, USDT)
+                lowest_price_elems = soup.select("div.MuiTypography-BodyMedium span")
+                for elem in lowest_price_elems:
+                    if "$" in elem.text and elem != highest_price_elem:
+                        data["meta"]["lowest_price_usdt"] = (
+                            elem.text.replace("$", "").replace(",", "").strip()
+                        )
+                        break
 
                 results.append(data)
 

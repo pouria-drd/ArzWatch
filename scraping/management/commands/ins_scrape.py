@@ -1,7 +1,7 @@
 import logging
-from ...sources import TgjuScraper, ZarminexScraper
 from ...models import InstrumentModel, SourceConfigModel
 from django.core.management.base import BaseCommand, CommandError
+from ...sources import TgjuScraper, ZarminexScraper, WallexScraper
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,11 @@ class Command(BaseCommand):
             logger.warning(f"No enabled sources found for instrument '{symbol}'")
             raise CommandError(f"No enabled sources found for instrument '{symbol}'")
 
-        scraper_class_map = {"tgju": TgjuScraper, "zarminex": ZarminexScraper}
+        scraper_class_map = {
+            "tgju": TgjuScraper,
+            "zarminex": ZarminexScraper,
+            "wallex": WallexScraper,
+        }
 
         for source in sources:
             scraper_class = scraper_class_map.get(source.name.lower())
