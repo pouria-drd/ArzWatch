@@ -49,32 +49,40 @@ class BaseScraper(ABC):
             return
 
         self.init_driver()
-
         try:
-            data = self.fetch_data()
-            with transaction.atomic():
-                PriceTickModel.objects.bulk_create(
-                    [
-                        PriceTickModel(
-                            instrument=InstrumentModel.objects.get(symbol=d["symbol"]),
-                            source=self.source,
-                            price=d["price"],
-                            currency=d["currency"],
-                            meta=d.get("meta"),
-                        )
-                        for d in data
-                    ]
+            data = self.fetch_data() or []
+            if not data:
+                logger.info(f"No data fetched from {self.source.name}")
+                return
+
+            symbols = [d.get("symbol") for d in data if d.get("symbol")]
+            inst_map = {
+                i.symbol: i for i in InstrumentModel.objects.filter(symbol__in=symbols)
+            }
+
+            objs = []
+            for d in data:
+                inst = inst_map.get(d["symbol"])
+                if not inst:
+                    logger.warning(f"Instrument not found: {d['symbol']}")
+                    continue
+                objs.append(
+                    PriceTickModel(
+                        instrument=inst,
+                        source=self.source,
+                        price=d["price"],
+                        currency=d.get("currency") or "IRR",
+                        meta=d.get("meta") or {},
+                    )
                 )
 
-                symbols = [d["symbol"] for d in data]
-                logger.info(f"Saved ticks for {symbols} from {self.source.name}")
+            with transaction.atomic():
+                PriceTickModel.objects.bulk_create(objs, ignore_conflicts=True)
+
+            logger.info(f"Saved {len(objs)} ticks for {self.source.name}")
 
         except Exception as e:
             logger.exception(f"Failed to scrape {self.source.name}: {e}")
         finally:
             if self.driver:
                 self.driver.quit()
-
-    async def __aexit__(self, exc_type, exc, tb):
-        if self.driver:
-            self.driver.quit()

@@ -23,7 +23,7 @@ class PriceTickModel(models.Model):
         InstrumentModel, on_delete=models.CASCADE, related_name="price_ticks"
     )
 
-    price = models.DecimalField(max_digits=20, decimal_places=2)
+    price = models.DecimalField(max_digits=20, decimal_places=8)
 
     currency = models.CharField(
         max_length=5, choices=Currency.choices, default=Currency.IRR, db_index=True
