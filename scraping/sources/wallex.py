@@ -1,7 +1,5 @@
-import re
 import time
 import logging
-from decimal import Decimal
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any
 
@@ -12,30 +10,19 @@ from selenium.common.exceptions import TimeoutException, WebDriverException
 
 from .base import BaseScraper
 from ..models import SourceConfigModel
+from ..utils import to_decimal, normalize_digits, extract_first_number
 
 logger = logging.getLogger(__name__)
-
-
-def _normalize_digits(s: str) -> str:
-    """Convert Persian/Arabic digits to ASCII digits."""
-    trans = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩٪", "01234567890123456789%")
-    return s.translate(trans)
-
-
-def _to_decimal(s: str) -> Decimal:
-    s = _normalize_digits(s)
-    s = re.sub(r"[^\d\.\-]", "", s)  # keep digits, dot, minus
-    return Decimal(s)
 
 
 class WallexScraper(BaseScraper):
     """
     Scraper to fetch cryptocurrency prices from https://wallex.ir/.
     Uses SourceConfigModel for configurations.
-    Returns a list of dictionaries with symbol, price (in USDT), currency, and meta.
+    Returns a list of dicts: symbol, price (USDT), currency, meta
     """
 
-    def __init__(self, source, auto_driver=False, instruments: List[str] = None):  # type: ignore
+    def __init__(self, source, auto_driver: bool = False, instruments: List[str] | None = None):  # type: ignore
         super().__init__(source, auto_driver)
         self.source_configs = SourceConfigModel.objects.filter(source=source)
         if instruments:
@@ -69,8 +56,7 @@ class WallexScraper(BaseScraper):
                     )
                 )
 
-                # Small buffer to let other widgets hydrate
-                time.sleep(2)
+                time.sleep(2)  # hydration buffer
 
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore
 
@@ -84,20 +70,19 @@ class WallexScraper(BaseScraper):
                 price_elem = soup.select_one("div.MuiTypography-BodyLargeMedium span")
                 if not price_elem:
                     raise ValueError("Current price (USDT) not found")
-                price_str = price_elem.get_text(strip=True)
-                data["price"] = _to_decimal(price_str)
+                price_str = price_elem.get_text(strip=True).replace("$", "")
+                data["price"] = to_decimal(price_str)
 
                 # --- Percentage change (24h) ---
-                # Look for any node that contains either '%' or '٪', then extract the first number and normalize to ASCII '%'
                 change_value = None
                 for node in soup.find_all(["div", "span"]):
                     txt = node.get_text(" ", strip=True)
                     if not txt:
                         continue
-                    if ("%" in txt) or ("٪" in txt):
-                        m = re.search(r"([+-]?\d+(?:\.\d+)?)", _normalize_digits(txt))
-                        if m:
-                            change_value = f"{m.group(1)}%"
+                    if "%" in normalize_digits(txt):
+                        num = extract_first_number(txt)
+                        if num is not None:
+                            change_value = f"{num}%"
                             break
                 if change_value:
                     data["meta"]["change_percentage"] = change_value
@@ -105,26 +90,18 @@ class WallexScraper(BaseScraper):
                 # --- IRR price ---
                 irr_price_elem = soup.select_one("div.MuiTypography-DisplayStrong span")
                 if irr_price_elem:
-                    irr_price_str = _normalize_digits(
+                    irr_price_str = normalize_digits(
                         irr_price_elem.get_text(strip=True)
                     ).replace(",", "")
                     data["meta"]["price_irr"] = irr_price_str
 
                 # --- Highest / Lowest price (24h, USDT) ---
-                # Find blocks that contain 'بیشترین قیمت' and 'کمترین قیمت' and then read the first '$' span inside them.
                 def extract_price_after_label(label_text: str) -> str | None:
-                    for block in soup.find_all(
-                        "div", class_=lambda c: c and "MuiStack-root" in c  # type: ignore
-                    ):
+                    for block in soup.find_all("div", class_=lambda c: c and "MuiStack-root" in c):  # type: ignore
                         block_text = block.get_text(" ", strip=True)
                         if label_text in block_text:
-                            # grab the first span in this block that contains a USD value
                             span = next(
-                                (
-                                    sp
-                                    for sp in block.find_all("span")  # type: ignore
-                                    if "$" in sp.get_text()
-                                ),
+                                (sp for sp in block.find_all("span") if "$" in sp.get_text()),  # type: ignore
                                 None,
                             )
                             if span:
@@ -135,11 +112,11 @@ class WallexScraper(BaseScraper):
                 lowest_raw = extract_price_after_label("کمترین قیمت")
 
                 if highest_raw:
-                    data["meta"]["highest_price_usdt"] = _normalize_digits(
+                    data["meta"]["highest_price_usdt"] = normalize_digits(
                         highest_raw.replace("$", "").replace(",", "").strip()
                     )
                 if lowest_raw:
-                    data["meta"]["lowest_price_usdt"] = _normalize_digits(
+                    data["meta"]["lowest_price_usdt"] = normalize_digits(
                         lowest_raw.replace("$", "").replace(",", "").strip()
                     )
 

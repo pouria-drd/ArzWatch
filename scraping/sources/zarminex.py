@@ -1,6 +1,5 @@
 import time
 import logging
-from decimal import Decimal
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any
 
@@ -9,8 +8,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, WebDriverException
 
+
 from .base import BaseScraper
 from ..models import SourceConfigModel
+from ..utils.numbers import to_decimal, normalize_digits
 
 logger = logging.getLogger(__name__)
 
@@ -68,30 +69,40 @@ class ZarminexScraper(BaseScraper):
                     "meta": {"source_url": url},
                 }
 
-                # Current price
+                # Current price (e.g. "12,345,678 ریال")
                 price_elem = soup.find("span", text=lambda x: x and "ریال" in x)  # type: ignore
                 if price_elem:
                     price_str = (
-                        price_elem.text.replace(",", "").replace("ریال", "").strip()
+                        normalize_digits(price_elem.get_text(strip=True))
+                        .replace("ریال", "")
+                        .replace(",", "")
+                        .strip()
                     )
-                    data["price"] = Decimal(price_str)
+                    data["price"] = to_decimal(price_str)
+                else:
+                    raise ValueError("Current price not found")
 
-                # Last update date
+                # Last update date (format varies; store raw normalized)
                 last_update_elem = soup.find("span", text=lambda x: x and "/" in x)  # type: ignore
                 if last_update_elem:
-                    data["meta"]["last_update"] = last_update_elem.text.strip()
+                    data["meta"]["last_update"] = normalize_digits(
+                        last_update_elem.get_text(strip=True)
+                    )
 
                 # Percentage change
-                perc_change_elem = soup.find("span", text=lambda x: x and "%" in x)  # type: ignore
+                perc_change_elem = soup.find("span", text=lambda x: x and "%" in normalize_digits(x))  # type: ignore
                 if perc_change_elem:
-                    data["meta"]["change_percentage"] = perc_change_elem.text.strip()
+                    data["meta"]["change_percentage"] = normalize_digits(
+                        perc_change_elem.get_text(strip=True)
+                    )
 
-                # Amount change
-                amount_change_elem = perc_change_elem.find_parent("div").find_next_sibling("div")  # type: ignore
-                if amount_change_elem:
-                    data["meta"][
-                        "change_amount"
-                    ] = amount_change_elem.text.strip().replace(",", "")
+                # Amount change (neighbor div)
+                if perc_change_elem:
+                    amount_change_elem = perc_change_elem.find_parent("div").find_next_sibling("div")  # type: ignore
+                    if amount_change_elem:
+                        data["meta"]["change_amount"] = normalize_digits(
+                            amount_change_elem.get_text(strip=True)
+                        ).replace(",", "")
 
                 results.append(data)
 
