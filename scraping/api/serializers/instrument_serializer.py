@@ -18,27 +18,16 @@ class InstrumentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InstrumentModel
-        fields = [
-            "name",
-            "symbol",
-            "category",
-            "latestPriceTick",
-        ]
-        read_only_fields = [
-            "name",
-            "symbol",
-            "category",
-        ]
+        fields = ["name", "symbol", "category", "latestPriceTick"]
 
     def get_latestPriceTick(self, obj):
-        ticks = getattr(obj, "all_price_ticks", [])
-        if not ticks:
+        if not getattr(obj, "latest_tick_id", None):
             return None
-
-        tick = next((t for t in ticks if t.id == obj.latest_tick_id), None)
-        if not tick:
-            return None
-
-        data = InstrumentPriceTickSerializer(tick).data
-        data["isFallback"] = tick.id != obj.default_tick_id  # type: ignore
-        return data
+        return {
+            "price": obj.latest_price,
+            "currency": obj.latest_currency,
+            "timestamp": obj.latest_timestamp,
+            "meta": obj.latest_meta or {},
+            "isFallback": (obj.default_tick_id is None)
+            or (obj.latest_tick_id != obj.default_tick_id),
+        }

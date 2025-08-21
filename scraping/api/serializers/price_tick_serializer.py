@@ -11,7 +11,6 @@ class PriceTickSerializer(serializers.ModelSerializer):
     class Meta:
         model = PriceTickModel
         fields = [
-            # "id",
             "instrument",
             "source",
             "price",
@@ -20,7 +19,6 @@ class PriceTickSerializer(serializers.ModelSerializer):
             "meta",
         ]
         read_only_fields = [
-            # "id",
             "instrument",
             "source",
             "price",
