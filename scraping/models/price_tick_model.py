@@ -10,6 +10,7 @@ class PriceTickModel(models.Model):
     class Currency(models.TextChoices):
         EUR = "EUR", "Euro"
         USD = "USD", "US Dollar"
+        USDT = "USDT", "Tether"
         IRR = "IRR", "Iranian Rial"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
