@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     # Custom apps
     "scraping",
+    "telegram",
 ]
 
 MIDDLEWARE = [
