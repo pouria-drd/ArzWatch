@@ -7,6 +7,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, WebDriverException
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+)
 
 from .base import BaseScraper
 from ..models import SourceConfigModel
@@ -34,6 +40,14 @@ class TgjuScraper(BaseScraper):
                 f"No configurations found for source {source.name} for instruments {instruments}"
             )
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=4, max=10),
+        retry=retry_if_exception_type((TimeoutException, WebDriverException)),
+        before_sleep=lambda retry_state: logger.warning(
+            f"Retrying {retry_state.fn.__name__} (attempt {retry_state.attempt_number})..."  # type: ignore
+        ),
+    )
     def fetch_data(self) -> List[Dict[str, Any]]:
         if not self.source_configs.exists():
             return []
