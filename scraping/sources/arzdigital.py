@@ -70,7 +70,8 @@ class ArzDigitalScraper(BaseScraper):
                     )
                 )
 
-                time.sleep(5)  # small buffer
+                # Wait for the page to load all data
+                time.sleep(self.sleep_time)
 
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore
                 data: Dict[str, Any] = {

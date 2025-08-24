@@ -69,8 +69,8 @@ class ZarminexScraper(BaseScraper):
                     )
                 )
 
-                # Stay on the page for 2 seconds before scraping
-                time.sleep(5)
+                # Wait for the page to load all data
+                time.sleep(self.sleep_time)
 
                 # Parse page source
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore

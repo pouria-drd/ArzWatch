@@ -123,6 +123,12 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER=you@example.com
 EMAIL_HOST_PASSWORD=app-password-here
 DEFAULT_FROM_EMAIL=you@example.com
+
+
+# ----------------------------------------------------------------------------
+# Scraping
+# ----------------------------------------------------------------------------
+SCRAPING_SLEEP_TIME=5
 ```
 
 > Tip: keep `.env` out of version control. Commit a `.env.example` instead.

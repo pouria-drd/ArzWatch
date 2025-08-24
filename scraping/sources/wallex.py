@@ -70,7 +70,8 @@ class WallexScraper(BaseScraper):
                     )
                 )
 
-                time.sleep(5)  # hydration buffer
+                # Wait for the page to load all data
+                time.sleep(self.sleep_time)
 
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore
 
