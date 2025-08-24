@@ -288,8 +288,13 @@
 
 {% block extrahead %}
 <script>
-    // Smooth scroll behavior
+document.addEventListener("DOMContentLoaded", () => {
     const logBox = document.querySelector('.log-box');
+
+    // Scroll to bottom by default
+    logBox.scrollTop = logBox.scrollHeight;
+
+    // Smooth scroll on wheel
     logBox.addEventListener('wheel', function(e) {
         e.preventDefault();
         this.scrollTop += e.deltaY;
@@ -304,6 +309,7 @@
             line.style.background = 'transparent';
         });
     });
+});
 </script>
 {% endblock %}
 {% endblock %}
