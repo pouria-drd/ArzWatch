@@ -1,9 +1,5 @@
-import os
 import logging
 import platform
-from dotenv import load_dotenv
-
-
 from typing import List, Dict, Any
 from abc import ABC, abstractmethod
 
@@ -18,19 +14,13 @@ from ..models import InstrumentModel, PriceTickModel
 
 logger = logging.getLogger(__name__)
 
-# Load environment variables from .env file
-load_dotenv()
-
-
-SCRAPING_SLEEP_TIME = int(os.getenv("SCRAPING_SLEEP_TIME", 5))
-
 
 class BaseScraper(ABC):
     def __init__(self, source, auto_driver=False):
         self.driver = None
         self.source = source
         self.auto_driver = auto_driver
-        self.sleep_time = SCRAPING_SLEEP_TIME
+        self.sleep_time = settings.SCRAPING_SLEEP_TIME
 
     def init_driver(self):
         driver_path = (

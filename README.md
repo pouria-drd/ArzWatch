@@ -129,6 +129,12 @@ DEFAULT_FROM_EMAIL=you@example.com
 # Scraping
 # ----------------------------------------------------------------------------
 SCRAPING_SLEEP_TIME=5
+
+# ---------------------------------------------------------------
+# Telegram Configuration
+# ---------------------------------------------------------------
+TELEGRAM_BOT_TOKEN=your-bot-token-here
+TELEGRAM_PROXY_URL=your-sock5-proxy-url-here
 ```
 
 > Tip: keep `.env` out of version control. Commit a `.env.example` instead.

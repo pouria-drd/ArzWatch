@@ -32,8 +32,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     # Custom apps
+    "bot",
     "scraping",
-    "telegram",
 ]
 
 MIDDLEWARE = [
@@ -136,7 +136,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ---------------------------------------------------------------
 # Allowed Hosts Configuration
 # ---------------------------------------------------------------
-
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(
     ","
 )  # Allowed hosts from environment variable
@@ -148,7 +147,6 @@ INTERNAL_IPS = os.getenv("INTERNAL_IPS", "127.0.0.1").split(
 # ---------------------------------------------------------------
 # CORS Configuration
 # ---------------------------------------------------------------
-
 CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
 CORS_ALLOW_CREDENTIALS = os.getenv("CORS_ALLOW_CREDENTIALS", "False") == "True"
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
@@ -165,7 +163,6 @@ CORS_ALLOW_METHODS = [
 # ---------------------------------------------------------------
 # Django REST Framework Configuration
 # ---------------------------------------------------------------
-
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         # "rest_framework.permissions.IsAuthenticated",  # Only authenticated users can access
@@ -189,7 +186,6 @@ REST_FRAMEWORK = {
 # ---------------------------------------------------------------
 # SPECTACULAR Configuration
 # ---------------------------------------------------------------
-
 SPECTACULAR_SETTINGS = {
     "TITLE": "ArzWatch API",
     "DESCRIPTION": "API for ArzWatch",
@@ -214,6 +210,22 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 LOGS_DIR = os.path.join(BASE_DIR, "logs")
 os.makedirs(LOGS_DIR, exist_ok=True)
 
+
+# ---------------------------------------------------------------
+# Scraping Configuration
+# ---------------------------------------------------------------
+SCRAPING_SLEEP_TIME = int(os.getenv("SCRAPING_SLEEP_TIME", 5))
+
+# ---------------------------------------------------------------
+# Telegram Configuration
+# ---------------------------------------------------------------
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", None)
+TELEGRAM_PROXY_URL = os.getenv("TELEGRAM_PROXY_URL", None)
+# TELEGRAM_PROXY_URL = None
+
+# ---------------------------------------------------------------
+# Logging Configuration
+# ---------------------------------------------------------------
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -245,6 +257,11 @@ LOGGING = {
             "filename": os.path.join(LOGS_DIR, "scraping_api.log"),
             "formatter": "json",
         },
+        "telegram_bot_file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOGS_DIR, "telegram_bot.log"),
+            "formatter": "json",
+        },
     },
     "loggers": {
         # "": {
@@ -264,6 +281,11 @@ LOGGING = {
         },
         "scraping_api": {
             "handlers": ["console", "scraping_api_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "telegram_bot": {
+            "handlers": ["console", "telegram_bot_file"],
             "level": "INFO",
             "propagate": False,
         },
