@@ -70,16 +70,19 @@ from typing import List, Optional, Tuple
 from django.core.management.base import BaseCommand, CommandError
 
 from ...models import InstrumentModel, SourceModel, SourceConfigModel
-from ...sources import TgjuScraper, ZarminexScraper, WallexScraper
+from ...sources import ArzDigitalScraper, TgjuScraper, ZarminexScraper, WallexScraper
 
 logger = logging.getLogger(__name__)
 
 # Map source keys to scraper classes (extend here when adding new sources)
 SCRAPER_MAP = {
     "tgju": TgjuScraper,
-    "zarminex": ZarminexScraper,
     "wallex": WallexScraper,
+    "zarminex": ZarminexScraper,
+    "arzdigital": ArzDigitalScraper,
 }
+# 10_855_840_727
+# ۱۰,۸۵۵,۵۴۶,۴۹۹ ت
 
 
 class Command(BaseCommand):
