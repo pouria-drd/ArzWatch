@@ -64,13 +64,13 @@ class WallexScraper(BaseScraper):
                 self.driver.get(url)  # type: ignore
 
                 # Wait for the USDT price to render
-                WebDriverWait(self.driver, 20).until(  # type: ignore
+                WebDriverWait(self.driver, 30).until(  # type: ignore
                     EC.visibility_of_element_located(
                         (By.CSS_SELECTOR, "div.MuiTypography-BodyLargeMedium span")
                     )
                 )
 
-                time.sleep(2)  # hydration buffer
+                time.sleep(5)  # hydration buffer
 
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore
 

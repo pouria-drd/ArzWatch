@@ -64,13 +64,13 @@ class ArzDigitalScraper(BaseScraper):
                 self.driver.get(url)  # type: ignore
 
                 # Wait for the price element to load
-                WebDriverWait(self.driver, 10).until(  # type: ignore
+                WebDriverWait(self.driver, 30).until(  # type: ignore
                     EC.presence_of_element_located(
                         (By.CSS_SELECTOR, "div.arz-coin-page-data__coin-price")
                     )
                 )
 
-                time.sleep(2)  # small buffer
+                time.sleep(5)  # small buffer
 
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore
                 data: Dict[str, Any] = {

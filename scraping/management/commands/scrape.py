@@ -81,8 +81,6 @@ SCRAPER_MAP = {
     "zarminex": ZarminexScraper,
     "arzdigital": ArzDigitalScraper,
 }
-# 10_855_840_727
-# ۱۰,۸۵۵,۵۴۶,۴۹۹ ت
 
 
 class Command(BaseCommand):

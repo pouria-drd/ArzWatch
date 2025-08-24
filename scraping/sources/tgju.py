@@ -63,13 +63,13 @@ class TgjuScraper(BaseScraper):
                 self.driver.get(url)  # type: ignore
 
                 # Wait for the table to load
-                WebDriverWait(self.driver, 10).until(  # type: ignore
+                WebDriverWait(self.driver, 30).until(  # type: ignore
                     EC.presence_of_element_located(
                         (By.CSS_SELECTOR, "tbody.table-padding-lg")
                     )
                 )
 
-                time.sleep(2)  # small buffer
+                time.sleep(5)  # small buffer
 
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore
                 table = soup.select_one("tbody.table-padding-lg")

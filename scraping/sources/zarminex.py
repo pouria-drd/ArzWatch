@@ -63,14 +63,14 @@ class ZarminexScraper(BaseScraper):
                 self.driver.get(url)  # type: ignore
 
                 # Wait for the main gold price to load
-                WebDriverWait(self.driver, 20).until(  # type: ignore
+                WebDriverWait(self.driver, 30).until(  # type: ignore
                     EC.presence_of_element_located(
                         (By.XPATH, "//span[contains(text(),'ریال')]")
                     )
                 )
 
                 # Stay on the page for 2 seconds before scraping
-                time.sleep(2)
+                time.sleep(5)
 
                 # Parse page source
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore
