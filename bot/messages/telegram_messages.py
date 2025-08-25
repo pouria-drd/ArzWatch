@@ -51,12 +51,12 @@ MESSAGES = {
 }
 
 
-def get_message(key: str, user, **kwargs) -> str:
+def get_message(key: str, user, preferred_lang: str = "fa", **kwargs) -> str:
     """
     Returns a message based on the user's preferred language.
     Falls back to 'fa' if language is invalid or not set.
     """
-    lang = getattr(user, "preferred_language", "fa")
+    lang = getattr(user, "preferred_language", preferred_lang)
     if lang not in AVAILABLE_LANGS:
         lang = "fa"  # fallback language
 

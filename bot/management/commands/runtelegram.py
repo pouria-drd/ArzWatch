@@ -34,10 +34,13 @@ class Command(BaseCommand):
 
             application = builder.build()
 
-            # Add command handler
-            application.add_handler(CommandHandler("start", telegram_commands.start))
-            application.add_handler(
-                CommandHandler("setlang", telegram_commands.set_lang)
+            # Register command handlers
+            application.add_handlers(
+                [
+                    CommandHandler("start", telegram_commands.start),
+                    CommandHandler("usage", telegram_commands.usage),
+                    CommandHandler("setlang", telegram_commands.set_lang),
+                ]
             )
 
             # Start the bot
