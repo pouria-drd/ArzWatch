@@ -9,8 +9,6 @@ class TelegramUserAdmin(admin.ModelAdmin):
     list_display = [
         "user_id",
         "name",
-        "is_bot",
-        "is_premium",
         "status",
         "usage",
         "created_at",
