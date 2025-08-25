@@ -3,7 +3,6 @@ from ...messages import welcome
 from django.conf import settings
 
 from telegram import Update
-from telegram.request import HTTPXRequest
 from django.core.management.base import BaseCommand
 from telegram.ext import Application, CommandHandler, ContextTypes
 
