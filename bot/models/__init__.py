@@ -1,2 +1,2 @@
-from .telegram_command_model import TelegramCommand
 from .telegram_user_models import TelegramUserModel
+from .telegram_command_model import TelegramCommandModel

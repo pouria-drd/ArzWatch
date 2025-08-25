@@ -3,7 +3,7 @@ from django.db import models
 from .telegram_user_models import TelegramUserModel
 
 
-class TelegramCommand(models.Model):
+class TelegramCommandModel(models.Model):
     """
     Logs actions/commands performed by Telegram users.
     """
