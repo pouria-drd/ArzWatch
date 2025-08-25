@@ -28,7 +28,7 @@ class LogAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def view_logs(self, request):
-        log_file_path = os.path.join(settings.BASE_DIR, "logs", "scraping.log")
+        log_file_path = os.path.join(settings.BASE_DIR, "logs", "telegram_bot.log")
         lines_to_show = int(request.GET.get("lines", 50))  # Default to 50 lines
 
         try:

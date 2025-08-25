@@ -1,0 +1,15 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="module">
+        <h2>Additional Tools</h2>
+        <table>
+            <tr>
+                <td>
+                    <a href="{% url 'admin:view-logs' %}" class="section">View Recent Logs</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}

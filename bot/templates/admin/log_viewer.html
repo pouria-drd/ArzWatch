@@ -1,0 +1,316 @@
+{% extends "admin/base_site.html" %}
+{% load static log_filters %}
+
+{% block extrastyle %}
+<style>
+    /* Global Styles */
+    body {
+        /* background-color: #f8fafc; */
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        /* color: #333; */
+        line-height: 1.5;
+    }
+
+    /* Container */
+    .log-viewer-container {
+        padding: 20px;
+        margin: 0 auto;
+        max-width: 1200px;
+    }
+
+    /* Header */
+    .log-header {
+        margin-bottom: 24px;
+        text-align: left;
+    }
+    .log-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        /* color: #1f2937; */
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .log-header p {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 4px;
+    }
+
+    /* Main Container */
+    .main-container {
+        gap: 24px;
+        padding: 24px;
+        display: flex;
+        border-radius: 12px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        background: #d9dde0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Filter and Refresh Controls */
+    .log-controls {
+        gap: 16px;
+        width: 100%;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Filter Form */
+    .log-filter {
+        gap: 12px;
+        display: flex;
+        align-items: center;
+    }
+    .log-filter label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+    }
+    .log-filter select {
+        background: #f9fafb;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 4px 16px;
+        min-width: 80px;
+        min-height: 35px;
+        font-size: 0.875rem;
+        color: #374151;
+        cursor: pointer;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .log-filter select:hover {
+        border-color: #3b82f6;
+    }
+    .log-filter select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .log-filter button {
+        background: #3b82f6;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 16px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        min-width: 80px;
+        min-height: 34px;
+        transition: background 0.2s ease;
+    }
+    .log-filter button:hover {
+        background: #2563eb;
+    }
+
+    /* Refresh Button */
+    .refresh-btn {
+        gap: 8px;
+        text-align: center !important;
+        display: flex;
+        color: #ffffff !important;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        align-items: center !important;
+        background: #10b981;
+        text-decoration: none;
+        transition: background 0.2s ease;
+    }
+
+    .refresh-btn:hover {
+        background: #059669;
+    }
+    .refresh-btn svg {
+        width: 16px;
+        height: 16px;
+        transition: transform 0.5s ease;
+    }
+    .refresh-btn:hover svg {
+        transform: rotate(360deg);
+    }
+
+    /* Log Box */
+    .log-box {
+        width: 98%;
+        padding: 16px;
+        color: #e5e7eb;
+        line-height: 1.6;
+        overflow-y: auto;
+        text-align: start;
+        max-height: 600px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        background: #1f2937;
+        word-break: break-word; 
+        /* white-space: pre-wrap;*/
+        border: 1px solid #374151;
+        font-family: 'Fira Code', monospace;
+
+    }
+    .log-box div {
+        padding: 4px 0;
+        margin-top: 8px;
+        border-radius: 4px;
+        transition: background 0.2s ease, padding-left 0.2s ease;
+    }
+    .log-box div:hover {
+        /* font-size: 0.9rem; */
+        padding-left: 10px;
+        background: rgba(255, 255, 255, 0.1);
+    }
+    .log-box::-webkit-scrollbar {
+        width: 8px;
+    }
+    .log-box::-webkit-scrollbar-track {
+        background: #374151;
+        border-radius: 4px;
+    }
+    .log-box::-webkit-scrollbar-thumb {
+        background: #6b7280;
+        border-radius: 4px;
+    }
+    .log-box::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+    }
+
+    /* Log Levels */
+    .log-line-error { color: #f87171; }
+    .log-line-warning { color: #facc15; }
+    .log-line-info { color: #34d399; }
+    .log-line-debug { color: #9ca3af; }
+    .log-line-empty { color: #6b7280; }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .log-viewer-container {
+            padding: 0px;
+        }
+        .log-controls {
+            width: 100%;
+            flex-direction: column;
+        }
+        .log-filter {
+            gap: 8px;
+            width: 100%;
+            flex-direction: column;
+        }
+        .log-filter select{
+            width: 100%;
+        }
+        .log-filter button { 
+           width: 100%;
+        }
+        .refresh-btn {
+            width: 95% !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .log-header h1 {
+            font-size: 1.5rem;
+        }
+        .log-box {
+            font-size: 0.8125rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .log-header h1 {
+            font-size: 1.25rem;
+        }
+        .log-header p {
+            font-size: 0.75rem;
+        }
+        .log-box {
+            padding: 12px;
+        }
+        .main-container {
+            padding: 12px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="log-viewer-container">
+    <!-- Header -->
+    <div class="log-header">
+        <h1>📂 Recent Logs</h1>
+        <p>View and filter the latest system logs.</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Controls -->
+        <div class="log-controls">
+            <!-- Filter Form -->
+            <form method="get" class="log-filter">
+                <label for="lines">Number of Lines:</label>
+                <select name="lines" id="lines">
+                    <option value="10" {% if lines == 10 %}selected{% endif %}>10</option>
+                    <option value="50" {% if lines == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if lines == 100 %}selected{% endif %}>100</option>
+                    <option value="200" {% if lines == 200 %}selected{% endif %}>200</option>
+                </select>
+                <button type="submit">Apply</button>
+            </form>
+
+            <!-- Refresh Button -->
+            <a href="?lines={{ lines }}" class="refresh-btn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refresh
+            </a>
+        </div>
+
+        <!-- Log Box -->
+        <div class="log-box">
+            {% if log_content %}
+                {% for line in log_content|split_lines %}
+                    <div class="{% if 'ERROR' in line %}log-line-error{% elif 'WARNING' in line %}log-line-warning{% elif 'INFO' in line %}log-line-info{% else %}log-line-debug{% endif %}">
+                        {{ line }}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="log-line-empty">No logs available to display.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extrahead %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const logBox = document.querySelector('.log-box');
+
+    // Scroll to bottom by default
+    logBox.scrollTop = logBox.scrollHeight;
+
+    // Smooth scroll on wheel
+    logBox.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        this.scrollTop += e.deltaY;
+    });
+
+    // Highlight log lines on hover
+    document.querySelectorAll('.log-box > div').forEach(line => {
+        line.addEventListener('mouseenter', () => {
+            line.style.background = 'rgba(255, 255, 255, 0.1)';
+        });
+        line.addEventListener('mouseleave', () => {
+            line.style.background = 'transparent';
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
