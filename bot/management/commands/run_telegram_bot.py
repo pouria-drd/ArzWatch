@@ -24,13 +24,13 @@ class Command(BaseCommand):
             if settings.TELEGRAM_PROXY_URL:
                 builder.proxy(settings.TELEGRAM_PROXY_URL)
                 builder.get_updates_proxy(settings.TELEGRAM_PROXY_URL)
-                logger.info(f"Using proxy: {settings.TELEGRAM_PROXY_URL}")
+                logger.info("Using proxy for Telegram bot.")
 
             # Build the application
-            builder.get_updates_connect_timeout(30)
-            builder.get_updates_read_timeout(30)
-            builder.get_updates_write_timeout(30)
-            builder.get_updates_pool_timeout(30)
+            builder.get_updates_connect_timeout(10)
+            builder.get_updates_read_timeout(10)
+            builder.get_updates_write_timeout(10)
+            builder.get_updates_pool_timeout(10)
 
             application = builder.build()
 
