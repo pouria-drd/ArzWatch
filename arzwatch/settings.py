@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     # Custom apps
     "bot",
     "scraping",
+    "api_key",
 ]
 
 MIDDLEWARE = [
@@ -262,6 +263,11 @@ LOGGING = {
             "filename": os.path.join(LOGS_DIR, "telegram_bot.log"),
             "formatter": "json",
         },
+        "api_key_file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOGS_DIR, "api_key.log"),
+            "formatter": "json",
+        },
     },
     "loggers": {
         # "": {
@@ -286,6 +292,11 @@ LOGGING = {
         },
         "telegram_bot": {
             "handlers": ["console", "telegram_bot_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "api_key": {
+            "handlers": ["console", "api_key_file"],
             "level": "INFO",
             "propagate": False,
         },

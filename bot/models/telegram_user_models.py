@@ -1,6 +1,5 @@
 import uuid
 from django.db import models
-from datetime import datetime
 from django.utils.timezone import now as django_now
 
 
