@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Union
+from typing import Optional
 
 from telegram import Update
 from asgiref.sync import sync_to_async

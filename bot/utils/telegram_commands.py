@@ -10,7 +10,9 @@ logger = logging.getLogger("telegram_bot")
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-
+    """
+    Handle the /start command for a Telegram user.
+    """
     # Get user result
     result = await telegram_utils.get_valid_user(update)
     # Check if result is not ok
@@ -46,7 +48,7 @@ async def set_lang(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Handle the /setlang command for a Telegram user.
     """
-
+    # Get effective user data
     effective_user = update.effective_user
     effective_user_name = effective_user.name  # type: ignore
     # Get user result
