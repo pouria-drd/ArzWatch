@@ -27,8 +27,26 @@ MESSAGES = {
         "en": "Your language has been set ✅",
     },
     "invalid_lang": {
-        "fa": f"لطفا یک کد زبان معتبر وارد کنید: {', '.join(AVAILABLE_LANGS.keys())}.",
-        "en": f"Please provide a valid language code: {', '.join(AVAILABLE_LANGS.keys())}.",
+        "fa": "لطفا یک کد زبان معتبر وارد کنید:\n"
+        + "\n".join(
+            [f"<code>/setlang {code}</code>" for code in AVAILABLE_LANGS.keys()]
+        ),
+        "en": "Please provide a valid language code:\n"
+        + "\n".join(
+            [f"<code>/setlang {code}</code>" for code in AVAILABLE_LANGS.keys()]
+        ),
+    },
+    "user_not_found": {
+        "fa": "حساب کاربری یافت نشد و یا حساب کاربری فعال نیست 😕",
+        "en": "User not found or account is inactive 😕",
+    },
+    "too_many_requests": {
+        "fa": "شما نمی توانید در این روز درخواست جدیدی داشته باشید😓",
+        "en": "You can't make a new request today 😓",
+    },
+    "error": {
+        "fa": "خطایی رخ داده است 😕",
+        "en": "An error occurred 😕",
     },
 }
 
