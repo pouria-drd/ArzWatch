@@ -19,6 +19,33 @@ class TelegramUserAdmin(admin.ModelAdmin):
     list_filter = ("status", "is_bot", "is_premium")
     search_fields = ("username", "first_name", "last_name")
 
+    actions = [
+        "reset_requests",
+        "set_active",
+        "set_inactive",
+        "set_banned",
+    ]
+
+    def reset_requests(self, request, queryset):
+        queryset.update(requests=0)
+
+    reset_requests.short_description = "Reset requests"
+
+    def set_active(self, request, queryset):
+        queryset.update(status=TelegramUserModel.Status.ACTIVE)
+
+    set_active.short_description = "Set active"
+
+    def set_inactive(self, request, queryset):
+        queryset.update(status=TelegramUserModel.Status.INACTIVE)
+
+    set_inactive.short_description = "Set inactive"
+
+    def set_banned(self, request, queryset):
+        queryset.update(status=TelegramUserModel.Status.BANNED)
+
+    set_banned.short_description = "Set banned"
+
     readonly_fields = (
         "user_id",
         "username",
