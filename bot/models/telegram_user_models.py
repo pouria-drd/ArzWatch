@@ -14,6 +14,10 @@ class TelegramUserModel(models.Model):
         BANNED = "banned", "Banned"
         INACTIVE = "inactive", "Inactive"
 
+    class Language(models.TextChoices):
+        FA = "fa", "فارسی"
+        EN = "en", "English"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     user_id = models.BigIntegerField(unique=True)
@@ -23,7 +27,11 @@ class TelegramUserModel(models.Model):
 
     is_bot = models.BooleanField(default=False)
     is_premium = models.BooleanField(default=False)
+
     language_code = models.CharField(max_length=10, blank=True, null=True)
+    preferred_language = models.CharField(
+        max_length=10, choices=Language.choices, default=Language.FA
+    )
 
     requests = models.PositiveIntegerField(default=0)
     max_requests = models.PositiveIntegerField(default=100)

@@ -1,10 +1,12 @@
 import logging
-from ...messages import welcome
-from django.conf import settings
+from ...utils import telegram_utils
+from ...messages import telegram_messages
 
 from telegram import Update
-from django.core.management.base import BaseCommand
 from telegram.ext import Application, CommandHandler, ContextTypes
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
 
 
 logger = logging.getLogger("telegram_bot")
@@ -35,6 +37,7 @@ class Command(BaseCommand):
 
             # Add command handler
             application.add_handler(CommandHandler("start", start))
+            application.add_handler(CommandHandler("set_lang", set_language))
 
             # Start the bot
             logger.info("Bot started!")
@@ -47,8 +50,28 @@ class Command(BaseCommand):
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """
-    Handle the /start command.
-    """
-    logger.info(f"User {update.effective_user.name} accessed start command.")  # type: ignore
-    await update.message.reply_text(welcome(update.effective_user.name), parse_mode="HTML")  # type: ignore
+    # Create a new Telegram user
+    tg_user = await telegram_utils.create_user(update)
+    tg_user_name = f"{tg_user}"
+    # Log the user
+    logger.info(f"User {tg_user_name} accessed start command.")
+    # Send welcome message
+    msg = telegram_messages.get_message("welcome", tg_user, name=tg_user_name)
+    await update.message.reply_text(msg, parse_mode="HTML")  # type: ignore
+
+
+async def set_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Get language code from context
+    lang = context.args[0] if context.args else "fa"
+    # Validate language code
+    if lang not in telegram_messages.AVAILABLE_LANGS:
+        await update.message.reply_text(  # type: ignore
+            telegram_messages.get_message("invalid_lang", update.effective_user.name),  # type: ignore
+        )
+        return
+    # Change language
+    tg_user = await telegram_utils.change_language(update, lang)
+    # Log the user
+    logger.info(f"User {tg_user} changed language to {lang}.")
+    # Send success message
+    await update.message.reply_text(telegram_messages.get_message("set_lang_success", tg_user))  # type: ignore

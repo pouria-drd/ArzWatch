@@ -11,7 +11,6 @@ class TelegramCommandModel(models.Model):
     class CommandType(models.TextChoices):
         START = "start", "Start"
         HELP = "help", "Help"
-        USAGE = "usage", "Usage"
         REQUEST = "request", "Request"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
