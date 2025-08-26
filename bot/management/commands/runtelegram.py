@@ -1,12 +1,11 @@
 import logging
-from ...utils import telegram_commands
-
 from telegram import Update
 from telegram.ext import Application, CommandHandler
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from bot.utils.telegram import commands
 
 logger = logging.getLogger("telegram_bot")
 
@@ -37,9 +36,15 @@ class Command(BaseCommand):
             # Register command handlers
             application.add_handlers(
                 [
-                    CommandHandler("start", telegram_commands.start),
-                    CommandHandler("usage", telegram_commands.usage),
-                    CommandHandler("setlang", telegram_commands.set_lang),
+                    # General commands
+                    CommandHandler("start", commands.start),
+                    CommandHandler("usage", commands.usage),
+                    CommandHandler("setlang", commands.set_lang),
+                    # Instruments commands
+                    # CommandHandler("gold", commands.gold),
+                    # CommandHandler("coin", commands.coin),
+                    # CommandHandler("crypto", commands.crypto),
+                    # CommandHandler("currency", commands.currency),
                 ]
             )
 
