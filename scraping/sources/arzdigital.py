@@ -57,6 +57,7 @@ class ArzDigitalScraper(BaseScraper):
 
         for config in self.source_configs:
             symbol = config.instrument.symbol
+            name = config.instrument.name
             path = config.path
             url = f"{self.source.base_url}/{path}"
             try:
@@ -92,7 +93,7 @@ class ArzDigitalScraper(BaseScraper):
                 data["price"] = to_decimal(price_str)
 
                 # Extract IRR price for meta
-                irr_price_elem = soup.select_one("span.pulser-toman-bitcoin")
+                irr_price_elem = soup.select_one(f"span.pulser-toman-{name.lower()}")
                 if irr_price_elem:
                     irr_price = (
                         normalize_digits(irr_price_elem.get_text(strip=True))

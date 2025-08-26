@@ -10,13 +10,13 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from django.conf import settings
 from django.db import transaction
-from ..models import InstrumentModel, PriceTickModel
+from ..models import InstrumentModel, PriceTickModel, SourceModel
 
 logger = logging.getLogger(__name__)
 
 
 class BaseScraper(ABC):
-    def __init__(self, source, auto_driver=False):
+    def __init__(self, source: SourceModel, auto_driver=False):
         self.driver = None
         self.source = source
         self.auto_driver = auto_driver
