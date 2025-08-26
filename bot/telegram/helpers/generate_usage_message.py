@@ -1,6 +1,6 @@
 from asgiref.sync import sync_to_async
+from bot.utils import persian_date_time
 from bot.models import TelegramCommandModel
-from bot.utils.utils import persian_date_time
 from .increment_requests import increment_requests
 
 
