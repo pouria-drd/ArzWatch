@@ -16,16 +16,15 @@ from tenacity import (
 
 from .base import BaseScraper
 from ..models import SourceConfigModel
-from ..utils import to_decimal, normalize_digits, extract_first_number
+from ..utils import to_decimal, normalize_digits
 
 logger = logging.getLogger(__name__)
 
 
 class WallexScraper(BaseScraper):
     """
-    Scraper to fetch cryptocurrency prices from https://wallex.ir/.
-    Uses SourceConfigModel for configurations.
-    Returns a list of dicts: symbol, price (USDT), currency, meta
+    Scraper to fetch cryptocurrency details from https://wallex.ir/.
+    Parses the detail table (name, price, change %, market cap, supply, etc.)
     """
 
     def __init__(self, source, auto_driver: bool = False, instruments: List[str] | None = None):  # type: ignore
@@ -36,16 +35,14 @@ class WallexScraper(BaseScraper):
                 instrument__symbol__in=instruments
             )
         if not self.source_configs.exists():
-            logger.warning(
-                f"No configurations found for source {source.name} for instruments {instruments}"
-            )
+            logger.warning(f"No configurations found for source {source.name}")
 
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=4, max=10),
         retry=retry_if_exception_type((TimeoutException, WebDriverException)),
-        before_sleep=lambda retry_state: logger.warning(
-            f"Retrying {retry_state.fn.__name__} (attempt {retry_state.attempt_number})..."  # type: ignore
+        before_sleep=lambda s: logger.warning(
+            f"Retrying {s.fn.__name__} (attempt {s.attempt_number})..."  # type: ignore
         ),
     )
     def fetch_data(self) -> List[Dict[str, Any]]:
@@ -63,13 +60,12 @@ class WallexScraper(BaseScraper):
                 logger.info(f"Fetching data for {symbol} from {url}")
                 self.driver.get(url)  # type: ignore
 
-                # Wait for the USDT price to render
+                # Wait for the table to render
                 WebDriverWait(self.driver, 30).until(  # type: ignore
-                    EC.visibility_of_element_located(
-                        (By.CSS_SELECTOR, "div.MuiTypography-BodyLargeMedium span")
+                    EC.presence_of_element_located(
+                        (By.CSS_SELECTOR, "table.MuiBox-root tbody tr")
                     )
                 )
-
                 # Wait for the page to load all data
                 time.sleep(self.sleep_time)
 
@@ -81,73 +77,59 @@ class WallexScraper(BaseScraper):
                     "meta": {"source_url": url},
                 }
 
-                # --- Current price (USDT) ---
-                price_elem = soup.select_one("div.MuiTypography-BodyLargeMedium span")
-                if not price_elem:
-                    raise ValueError("Current price (USDT) not found")
-                price_str = price_elem.get_text(strip=True).replace("$", "")
-                data["price"] = to_decimal(price_str)
-
-                # --- Percentage change (24h) ---
-                change_value = None
-                for node in soup.find_all(["div", "span"]):
-                    txt = node.get_text(" ", strip=True)
-                    if not txt:
+                # --- Parse table rows ---
+                rows = soup.select("table.MuiBox-root tbody tr")
+                for row in rows:
+                    th = row.find("th")
+                    td = row.find("td")
+                    if not th or not td:
                         continue
-                    if "%" in normalize_digits(txt):
-                        num = extract_first_number(txt)
-                        if num is not None:
-                            change_value = f"{num}%"
-                            break
-                if change_value:
-                    data["meta"]["change_percentage"] = change_value
 
-                # --- IRR price ---
-                irr_price_elem = soup.select_one("div.MuiTypography-DisplayStrong span")
-                if irr_price_elem:
-                    irr_price_str = normalize_digits(
-                        irr_price_elem.get_text(strip=True)
-                    ).replace(",", "")
-                    data["meta"]["price_irr"] = irr_price_str
+                    label = th.get_text(strip=True)
+                    value = td.get_text(" ", strip=True)
+                    value = normalize_digits(value)
 
-                # --- Highest / Lowest price (24h, USDT) ---
-                def extract_price_after_label(label_text: str) -> str | None:
-                    for block in soup.find_all("div", class_=lambda c: c and "MuiStack-root" in c):  # type: ignore
-                        block_text = block.get_text(" ", strip=True)
-                        if label_text in block_text:
-                            span = next(
-                                (sp for sp in block.find_all("span") if "$" in sp.get_text()),  # type: ignore
-                                None,
-                            )
-                            if span:
-                                return span.get_text(strip=True)
-                    return None
-
-                highest_raw = extract_price_after_label("بیشترین قیمت")
-                lowest_raw = extract_price_after_label("کمترین قیمت")
-
-                if highest_raw:
-                    data["meta"]["highest_price_usdt"] = normalize_digits(
-                        highest_raw.replace("$", "").replace(",", "").strip()
-                    )
-                if lowest_raw:
-                    data["meta"]["lowest_price_usdt"] = normalize_digits(
-                        lowest_raw.replace("$", "").replace(",", "").strip()
-                    )
+                    # Map Persian label → meta keys
+                    # extract name_fa
+                    if "نام رمز‌ارز" in label:
+                        data["meta"]["name_fa"] = value
+                    # extract change_24h
+                    elif "تغییرات ۲۴ ساعته" in label:
+                        data["meta"]["change_24h"] = value
+                    # extract price (USDT)
+                    elif "قیمت دلاری" in label:
+                        data["price"] = to_decimal(
+                            value.replace("$", "").replace(",", "")
+                        )
+                    # extract price_irr (IRR)
+                    elif "قیمت تومانی" in label:
+                        data["meta"]["price_irr"] = str(
+                            int(value.replace("تومان", "").replace(",", "").strip())
+                            * 10
+                        )
+                    # extract volume_24h (USDT)
+                    elif "حجم معاملات" in label:
+                        data["meta"]["volume_24h"] = value
+                    # extract market_cap (USDT)
+                    elif "حجم کل بازار" in label:
+                        data["meta"]["market_cap"] = value
+                    # extract available_supply (USDT)
+                    elif "ارز در دسترس" in label:
+                        data["meta"]["available_supply"] = value
+                    # extract max_supply (USDT)
+                    elif "حداکثر قابل عرضه" in label:
+                        data["meta"]["max_supply"] = value
+                    # extract circulating_supply (USDT)
+                    elif "ارز در گردش" in label:
+                        data["meta"]["circulating_supply"] = value
+                    # extract rank
+                    elif "رتبه در بازار" in label:
+                        data["meta"]["rank"] = value
 
                 results.append(data)
 
-            except TimeoutException:
-                logger.error(f"Timeout waiting for page to load: {url}")
-                continue
-            except WebDriverException as e:
-                logger.error(f"Selenium error fetching data from {url}: {str(e)}")
-                continue
-            except ValueError as e:
-                logger.error(f"Parsing error for {symbol}: {str(e)}")
-                continue
             except Exception as e:
-                logger.error(f"Unexpected error fetching data from {url}: {str(e)}")
+                logger.error(f"Error fetching {symbol} from {url}: {str(e)}")
                 continue
 
         return results
