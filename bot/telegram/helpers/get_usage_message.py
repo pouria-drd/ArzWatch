@@ -1,12 +1,12 @@
 from asgiref.sync import sync_to_async
 from bot.utils import persian_date_time
-from bot.models import TelegramCommandModel
 from bot.messages import get_message, MESSAGES
 from .increment_requests import increment_requests
+from bot.models import TelegramUserModel, TelegramCommandModel
 
 
 async def get_usage_message(
-    tg_user,
+    tg_user: TelegramUserModel,
     request_count: int,
     max_request_count: int,
     created_at,

@@ -8,7 +8,7 @@ from ..helpers import get_valid_user, change_language
 logger = logging.getLogger("telegram_bot")
 
 
-async def set_lang(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def setlang(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Handle the /setlang command for a Telegram user.
     """

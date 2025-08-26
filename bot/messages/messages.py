@@ -22,6 +22,20 @@ MESSAGES = {
             "@pouria_drd"
         ),
     },
+    "gold_item": {
+        "fa": (
+            "📊<b>{name} ({symbol})</b>\n\n"
+            "💰قیمت: {price:,} {currency}\n"
+            "📅<b>آخرین به روز رسانی:</b>\n{date} {time}\n\n"
+            "🔗<a href='{source}'>منبع</a>"
+        ),
+        "en": (
+            "📊<b>{name} ({symbol})</b>\n\n"
+            "💰Price: {price:,} {currency}\n"
+            "📅<b>Last updated:</b>\n{date}\n\n"
+            "🔗<a href='{source}'>Source</a>"
+        ),
+    },
     "usage": {
         "fa": (
             "خیلی خوشحالیم که از ربات ما استفاده می‌کنی <b>{name}</b>🎉\n\n"
@@ -75,6 +89,10 @@ MESSAGES = {
     "too_many_requests": {
         "fa": "شما نمی توانید در این روز درخواست جدیدی داشته باشید😓",
         "en": "You can't make a new request today 😓",
+    },
+    "no_data": {
+        "fa": "هیچ داده‌ای یافت نشد 😕",
+        "en": "No data found 😕",
     },
     "error": {
         "fa": "خطایی رخ داده است 😕",

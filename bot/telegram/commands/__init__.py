@@ -1,5 +1,14 @@
+# General commands
 from .start import start
 from .usage import usage
-from .set_lang import set_lang
+from .setlang import setlang
 
-__all__ = ["start", "usage", "set_lang"]
+# Instruments commands
+from .gold import gold
+
+__all__ = [
+    "start",
+    "usage",
+    "setlang",
+    "gold",
+]

@@ -9,9 +9,9 @@ from bot.telegram.commands import (
     # General commands
     start,
     usage,
-    set_lang,
+    setlang,
     # Instruments commands
-    # gold,
+    gold,
 )
 
 logger = logging.getLogger("telegram_bot")
@@ -46,9 +46,9 @@ class Command(BaseCommand):
                     # General commands
                     CommandHandler("start", start),
                     CommandHandler("usage", usage),
-                    CommandHandler("setlang", set_lang),
+                    CommandHandler("setlang", setlang),
                     # Instruments commands
-                    # CommandHandler("gold", gold),
+                    CommandHandler("gold", gold),
                     # CommandHandler("coin", coin),
                     # CommandHandler("crypto", crypto),
                     # CommandHandler("currency", currency),
