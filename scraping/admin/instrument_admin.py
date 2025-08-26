@@ -24,6 +24,7 @@ class InstrumentAdmin(admin.ModelAdmin):
     list_display = [
         "symbol",
         "name",
+        "fa_name",
         "category",
         "default_source",
         # "get_price_tick_count",
@@ -35,7 +36,7 @@ class InstrumentAdmin(admin.ModelAdmin):
     ordering = ["symbol"]
     list_filter = ["category"]
     list_editable = ["enabled"]
-    search_fields = ["symbol", "name"]
+    search_fields = ["symbol", "name", "fa_name"]
 
     # inlines = [PriceTickInline]
     actions = ["enable_sources", "disable_sources"]
