@@ -1,8 +1,9 @@
 import logging
 from telegram import Update
 from asgiref.sync import sync_to_async
+
+from bot.messages import get_message
 from bot.models import TelegramUserModel
-from bot.messages import telegram_messages
 
 logger = logging.getLogger("telegram_bot")
 
@@ -39,9 +40,7 @@ async def get_valid_user(update: Update) -> dict:
                     "ok": False,
                     "code": "too_many_requests",
                     "tg_user": None,
-                    "error": telegram_messages.get_message(
-                        "too_many_requests", tg_user
-                    ),
+                    "error": get_message("too_many_requests", tg_user),
                 }
 
             return {
@@ -57,7 +56,7 @@ async def get_valid_user(update: Update) -> dict:
                 "ok": False,
                 "code": "user_not_found",
                 "tg_user": None,
-                "error": telegram_messages.get_message(
+                "error": get_message(
                     "user_not_found",
                     update.effective_user,
                 ),
@@ -69,7 +68,7 @@ async def get_valid_user(update: Update) -> dict:
                 "ok": False,
                 "code": "unexpected_error",
                 "tg_user": None,
-                "error": telegram_messages.get_message("error", update.effective_user),
+                "error": get_message("error", update.effective_user),
             }
 
     return await get_valid_user()

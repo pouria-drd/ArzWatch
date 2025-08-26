@@ -1,7 +1,8 @@
 import logging
 from telegram import Update
 from telegram.ext import ContextTypes
-from bot.messages import telegram_messages
+
+from bot.messages import get_message
 from ..helpers import get_valid_user, create_user
 
 
@@ -35,7 +36,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Log the user
     logger.info(f"User {tg_user_name} accessed /start command.")
     # Send welcome message
-    msg = telegram_messages.get_message("welcome", tg_user, name=tg_user_name)
+    msg = get_message("welcome", tg_user, name=tg_user_name)
     await update.message.reply_text(  # type: ignore
         text=msg,
         reply_to_message_id=update.message.message_id,  # type: ignore

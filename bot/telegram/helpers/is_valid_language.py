@@ -1,4 +1,4 @@
-from bot.messages.telegram_messages import AVAILABLE_LANGS
+from bot.messages import AVAILABLE_LANGS
 
 
 def is_valid_language(lang_code: str) -> bool:

@@ -1,7 +1,8 @@
 import logging
 from telegram import Update
 from telegram.ext import ContextTypes
-from bot.messages import telegram_messages
+
+from bot.messages import get_message
 from ..helpers import get_valid_user, change_language
 
 logger = logging.getLogger("telegram_bot")
@@ -34,7 +35,7 @@ async def set_lang(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Check if language is invalid
     if updated_user is None:
         await update.message.reply_text(  # type: ignore
-            text=telegram_messages.get_message("invalid_lang", tg_user),
+            text=get_message("invalid_lang", tg_user),
             reply_to_message_id=update.message.message_id,  # type: ignore
             parse_mode="HTML",
         )
@@ -43,7 +44,7 @@ async def set_lang(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Successful update → log and reply
     logger.info(f"{updated_user} changed preferred language to: {lang}")
     await update.message.reply_text(  # type: ignore
-        text=telegram_messages.get_message("set_lang_success", updated_user),
+        text=get_message("set_lang_success", updated_user),
         reply_to_message_id=update.message.message_id,  # type: ignore
         parse_mode="HTML",
     )

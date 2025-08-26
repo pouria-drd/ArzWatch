@@ -5,7 +5,14 @@ from telegram.ext import Application, CommandHandler
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from bot.telegram.commands import start, usage, set_lang
+from bot.telegram.commands import (
+    # General commands
+    start,
+    usage,
+    set_lang,
+    # Instruments commands
+    # gold,
+)
 
 logger = logging.getLogger("telegram_bot")
 
