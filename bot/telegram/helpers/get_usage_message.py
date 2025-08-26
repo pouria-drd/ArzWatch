@@ -72,7 +72,7 @@ async def get_usage_message(
         warning=warning,
     )
 
-    # Log request
+    # Log and increment request count
     @sync_to_async
     def log_request():
         increment_requests(

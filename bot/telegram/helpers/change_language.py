@@ -22,6 +22,7 @@ async def change_language(
     if not is_valid_language(lang_code):
         return None
 
+    # Log, change, and increment request count
     @sync_to_async
     def change_language():
         tg_user.preferred_language = lang_code

@@ -26,14 +26,14 @@ MESSAGES = {
         "fa": (
             "📊<b>{name} ({symbol})</b>\n\n"
             "💰قیمت: {price:,} {currency}\n"
-            "📅<b>آخرین به روز رسانی:</b>\n{date} {time}\n\n"
-            "🔗<a href='{source}'>منبع</a>"
+            "📅<b>آخرین به روز رسانی:</b>\n{date} {time}\n"
+            "🔗منبع: {source}\n\n"
         ),
         "en": (
             "📊<b>{name} ({symbol})</b>\n\n"
             "💰Price: {price:,} {currency}\n"
-            "📅<b>Last updated:</b>\n{date}\n\n"
-            "🔗<a href='{source}'>Source</a>"
+            "📅<b>Last updated:</b>\n{date}\n"
+            "🔗Source: {source}\n\n"
         ),
     },
     "usage": {
