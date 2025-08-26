@@ -41,30 +41,30 @@ MESSAGES = {
             "خیلی خوشحالیم که از ربات ما استفاده می‌کنی <b>{name}</b>🎉\n\n"
             "اطلاعات مصرفی شما:\n\n"
             "{usage_emoji} <b>درصد مصرف:</b> <code>{percent}%</code>\n"
-            "📊 <b>تعداد درخواست امروز:</b> <code>{request_count}</code> از <code>{max_request_count}</code>\n"
-            "🗓️ تاریخ عضویت: <b>{date}</b>⏰\n\n"
+            "📊<b>تعداد درخواست امروز:</b> <code>{request_count}</code> از <code>{max_request_count}</code>\n"
+            "🗓️تاریخ عضویت: <b>{date}</b>⏰\n\n"
             "{warning}"
         ),
         "en": (
             "We’re happy you’re using our bot, <b>{name}</b>!🎉\n\n"
             "Your usage info:\n\n"
             "{usage_emoji} <b>Usage percent:</b> <code>{percent}%</code>\n"
-            "📊 <b>Requests today:</b> <code>{request_count}</code> out of <code>{max_request_count}</code>\n"
-            "🗓️ Joined: <b>{date}</b>⏰\n\n"
+            "📊<b>Requests today:</b> <code>{request_count}</code> out of <code>{max_request_count}</code>\n"
+            "🗓️Joined: <b>{date}</b>⏰\n\n"
             "{warning}"
         ),
     },
     "warnings": {
         "fa": {
-            "100": "⛔ <b>شما به سقف مجاز امروز رسیدید !</b>",
-            "90": "🚨 <b>شما به سقف مجاز امروز نزدیک شده‌اید!</b>",
-            "70": "⚠️ <b>در حال نزدیک شدن به سقف مجاز هستید.</b>",
+            "100": "⛔<b>شما به سقف مجاز امروز رسیدید !</b>",
+            "90": "🚨<b>شما به سقف مجاز امروز نزدیک شده‌اید!</b>",
+            "70": "⚠️<b>در حال نزدیک شدن به سقف مجاز هستید.</b>",
             "ok": "",
         },
         "en": {
-            "100": "⛔ <b>You have reached today’s limit!</b>",
-            "90": "🚨 <b>You are close to today’s limit!</b>",
-            "70": "⚠️ <b>You are approaching the daily limit.</b>",
+            "100": "⛔<b>You have reached today’s limit!</b>",
+            "90": "🚨<b>You are close to today’s limit!</b>",
+            "70": "⚠️<b>You are approaching the daily limit.</b>",
             "ok": "",
         },
     },
@@ -83,20 +83,24 @@ MESSAGES = {
         ),
     },
     "user_not_found": {
-        "fa": "حساب کاربری یافت نشد و یا حساب کاربری فعال نیست 😕",
-        "en": "User not found or account is inactive 😕",
+        "fa": "حساب کاربری یافت نشد😕",
+        "en": "User not found😕",
+    },
+    "user_not_active": {
+        "fa": "حساب کاربری فعال نیست😕",
+        "en": "User is inactive😕",
     },
     "too_many_requests": {
         "fa": "شما نمی توانید در این روز درخواست جدیدی داشته باشید😓",
-        "en": "You can't make a new request today 😓",
+        "en": "You can't make a new request today😓",
     },
     "no_data": {
-        "fa": "هیچ داده‌ای یافت نشد 😕",
-        "en": "No data found 😕",
+        "fa": "هیچ داده‌ای یافت نشد😕",
+        "en": "No data found😕",
     },
     "error": {
-        "fa": "خطایی رخ داده است 😕",
-        "en": "An error occurred 😕",
+        "fa": "خطایی رخ داده است😕",
+        "en": "An error occurred😕",
     },
 }
 

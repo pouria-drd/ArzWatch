@@ -1,7 +1,10 @@
+import logging
 from telegram import Update
 from asgiref.sync import sync_to_async
 from .increment_requests import increment_requests
 from bot.models import TelegramUserModel, TelegramCommandModel
+
+logger = logging.getLogger("telegram_bot")
 
 
 async def create_user(update: Update) -> TelegramUserModel:
@@ -26,9 +29,11 @@ async def create_user(update: Update) -> TelegramUserModel:
         )
         if created:
             message = f"New user {user} created."
+            logger.info(message)
             increment_requests(user, TelegramCommandModel.CommandType.START, message)
         else:
             message = f"User {user} already exists."
+            logger.info(message)
             increment_requests(user, TelegramCommandModel.CommandType.START, message)
 
         return user

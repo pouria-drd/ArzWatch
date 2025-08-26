@@ -20,7 +20,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if (
             result["code"] == "too_many_requests"
             or result["code"] == "unexpected_error"
-            or result["code"] == "user_not_found"
+            or result["code"] == "user_not_active"
         ):
             # User invalid → reply with error and exit
             await update.message.reply_text(  # type: ignore

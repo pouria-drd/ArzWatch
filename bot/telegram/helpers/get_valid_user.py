@@ -31,7 +31,16 @@ async def get_valid_user(update: Update) -> dict:
     def get_valid_user():
         try:
             user_id = update.effective_user.id  # type: ignore
-            tg_user = TelegramUserModel.objects.get(user_id=user_id, status="active")
+            tg_user = TelegramUserModel.objects.get(user_id=user_id)
+
+            if not tg_user.status == "active":
+                logger.warning(f"User {tg_user} is not active: status={tg_user.status}")
+                return {
+                    "ok": False,
+                    "code": "user_not_active",
+                    "tg_user": None,
+                    "error": get_message("user_not_active", tg_user),
+                }
 
             # Check if user can still make requests today
             if not tg_user.can_make_request():
@@ -51,7 +60,7 @@ async def get_valid_user(update: Update) -> dict:
             }
 
         except TelegramUserModel.DoesNotExist:
-            logger.warning(f"User {update.effective_user.name} not found or inactive.")  # type: ignore
+            logger.warning(f"User {update.effective_user.name} not found.")  # type: ignore
             return {
                 "ok": False,
                 "code": "user_not_found",
