@@ -11,6 +11,7 @@ async def get_gold_message(query_result: dict, lang: str = "fa") -> str:
 
     for inst in instruments:
         name = inst.get("name", "-")
+        fa_name = inst.get("fa_name", "-")
         symbol = inst.get("symbol", "-")
         latest = inst.get("latestPriceTick", {})
         price = latest.get("price", "-")
@@ -36,7 +37,7 @@ async def get_gold_message(query_result: dict, lang: str = "fa") -> str:
             msg = get_message(
                 "gold_item",
                 preferred_lang=lang,
-                name=name,
+                name=fa_name,
                 symbol=symbol,
                 price=price,
                 currency=currency,
