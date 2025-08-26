@@ -111,7 +111,7 @@ class TgjuScraper(BaseScraper):
                     elif "زمان ثبت آخرین نرخ" in label:
                         data["meta"]["timestamp"] = normalize_digits(value)
                     elif "قیمت ریالی" in label:
-                        data["meta"]["rial_price"] = normalize_digits(value).replace(
+                        data["meta"]["price_irr"] = normalize_digits(value).replace(
                             ",", ""
                         )
 
