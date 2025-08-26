@@ -1,7 +1,7 @@
 import logging
 from telegram import Update
 from telegram.ext import ContextTypes
-from bot.utils.telegram.utils import get_valid_user, generate_usage_message
+from ..helpers import get_valid_user, generate_usage_message
 
 logger = logging.getLogger("telegram_bot")
 

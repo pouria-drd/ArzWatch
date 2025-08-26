@@ -2,7 +2,7 @@ import logging
 from telegram import Update
 from telegram.ext import ContextTypes
 from bot.messages import telegram_messages
-from bot.utils.telegram.utils import get_valid_user, change_language
+from ..helpers import get_valid_user, change_language
 
 logger = logging.getLogger("telegram_bot")
 
