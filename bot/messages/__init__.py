@@ -1,3 +1,3 @@
-from .messages import AVAILABLE_LANGS, get_message
+from .messages import AVAILABLE_LANGS, MESSAGES, get_message
 
-__all__ = ["AVAILABLE_LANGS", "get_message"]
+__all__ = ["AVAILABLE_LANGS", "MESSAGES", "get_message"]

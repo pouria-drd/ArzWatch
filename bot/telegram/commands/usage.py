@@ -1,7 +1,7 @@
 import logging
 from telegram import Update
 from telegram.ext import ContextTypes
-from ..helpers import get_valid_user, generate_usage_message
+from ..helpers import get_valid_user, get_usage_message
 
 logger = logging.getLogger("telegram_bot")
 
@@ -25,7 +25,7 @@ async def usage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tg_user = result["tg_user"]
     lang = getattr(tg_user, "preferred_language", "fa")
     # Build usage message
-    message = await generate_usage_message(
+    message = await get_usage_message(
         tg_user=tg_user,
         request_count=tg_user.requests,
         max_request_count=tg_user.max_requests,

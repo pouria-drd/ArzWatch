@@ -22,6 +22,38 @@ MESSAGES = {
             "@pouria_drd"
         ),
     },
+    "usage": {
+        "fa": (
+            "خیلی خوشحالیم که از ربات ما استفاده می‌کنی <b>{name}</b>🎉\n\n"
+            "اطلاعات مصرفی شما:\n\n"
+            "{usage_emoji} <b>درصد مصرف:</b> <code>{percent}%</code>\n"
+            "📊 <b>تعداد درخواست امروز:</b> <code>{request_count}</code> از <code>{max_request_count}</code>\n"
+            "🗓️ تاریخ عضویت: <b>{date}</b>⏰\n\n"
+            "{warning}"
+        ),
+        "en": (
+            "We’re happy you’re using our bot, <b>{name}</b>!🎉\n\n"
+            "Your usage info:\n\n"
+            "{usage_emoji} <b>Usage percent:</b> <code>{percent}%</code>\n"
+            "📊 <b>Requests today:</b> <code>{request_count}</code> out of <code>{max_request_count}</code>\n"
+            "🗓️ Joined: <b>{date}</b>⏰\n\n"
+            "{warning}"
+        ),
+    },
+    "warnings": {
+        "fa": {
+            "100": "⛔ <b>شما به سقف مجاز امروز رسیدید !</b>",
+            "90": "🚨 <b>شما به سقف مجاز امروز نزدیک شده‌اید!</b>",
+            "70": "⚠️ <b>در حال نزدیک شدن به سقف مجاز هستید.</b>",
+            "ok": "",
+        },
+        "en": {
+            "100": "⛔ <b>You have reached today’s limit!</b>",
+            "90": "🚨 <b>You are close to today’s limit!</b>",
+            "70": "⚠️ <b>You are approaching the daily limit.</b>",
+            "ok": "",
+        },
+    },
     "set_lang_success": {
         "fa": "زبان شما تنظیم شد ✅",
         "en": "Your language has been set ✅",
@@ -51,12 +83,15 @@ MESSAGES = {
 }
 
 
-def get_message(key: str, user, preferred_lang: str = "fa", **kwargs) -> str:
+def get_message(key: str, user=None, preferred_lang: str = "fa", **kwargs) -> str:
     """
     Returns a message based on the user's preferred language.
     Falls back to 'fa' if language is invalid or not set.
     """
-    lang = getattr(user, "preferred_language", preferred_lang)
+    lang = preferred_lang
+    if user is not None:
+        lang = getattr(user, "preferred_language", preferred_lang)
+
     if lang not in AVAILABLE_LANGS:
         lang = "fa"  # fallback language
 
