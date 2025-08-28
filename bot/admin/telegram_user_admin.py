@@ -19,7 +19,7 @@ class TelegramUserAdmin(admin.ModelAdmin):
 
     ordering = ("-created_at",)
     list_filter = ("status", "is_bot", "is_premium")
-    search_fields = ("username", "first_name", "last_name")
+    search_fields = ("user_id", "username", "first_name", "last_name")
 
     # Actions
     actions = [

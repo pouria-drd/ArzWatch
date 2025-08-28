@@ -16,21 +16,34 @@ logger = logging.getLogger("telegram_bot")
 
 @admin.register(TelegramMessageModel)
 class TelegramMessageAdmin(admin.ModelAdmin):
-    list_display = ("content_preview", "recipient", "is_sent", "sent_at", "created_at")
-    list_filter = ("is_sent", "created_at", "recipient")
+    list_display = (
+        "content_preview",
+        "recipients_preview",
+        "is_sent",
+        "sent_at",
+        "created_at",
+    )
+    list_filter = ("is_sent", "created_at")
     search_fields = ("content",)
     actions = ["send_messages"]
+    filter_horizontal = ("recipients",)  # Makes multi-select box easier to use
 
     def content_preview(self, obj):
         return obj.content[:50] + ("..." if len(obj.content) > 50 else "")
 
     content_preview.short_description = "Message Content"
 
+    def recipients_preview(self, obj):
+        if obj.recipients.exists():
+            return ", ".join([str(r) for r in obj.recipients.all()])
+        return "All Users"
+
+    recipients_preview.short_description = "Recipients"
+
     def send_messages(self, request, queryset):
         """
         Send selected messages via proxy if configured.
         """
-        # Create a Request object with proxy support
         request_kwargs = {}
         if getattr(settings, "TELEGRAM_PROXY_URL", None):
             request_kwargs["proxy"] = settings.TELEGRAM_PROXY_URL
@@ -58,8 +71,8 @@ class TelegramMessageAdmin(admin.ModelAdmin):
 
         for message in queryset.filter(is_sent=False):
             recipients = (
-                [message.recipient]
-                if message.recipient
+                list(message.recipients.all())
+                if message.recipients.exists()
                 else TelegramUserModel.objects.filter(
                     status=TelegramUserModel.Status.ACTIVE
                 )

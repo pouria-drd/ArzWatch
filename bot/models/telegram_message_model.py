@@ -7,12 +7,13 @@ class TelegramMessageModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
 
     content = models.TextField(verbose_name="Message Content")
-    recipient = models.ForeignKey(
+
+    # Many-to-Many allows sending to multiple users
+    recipients = models.ManyToManyField(
         TelegramUserModel,
-        on_delete=models.CASCADE,
-        null=True,
         blank=True,
-        verbose_name="Recipient (Leave blank for all)",
+        related_name="messages",
+        verbose_name="Recipients (Leave empty for all)",
     )
 
     is_sent = models.BooleanField(default=False, verbose_name="Is Sent")
@@ -20,8 +21,11 @@ class TelegramMessageModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
 
     class Meta:
+        ordering = ("-created_at",)
         verbose_name = "Telegram Message"
         verbose_name_plural = "Telegram Messages"
 
     def __str__(self):
-        return f"Message to {self.recipient or 'All Users'}"
+        if self.recipients.exists():
+            return f"Message to {self.recipients.count()} user(s)"
+        return "Message to All Users"
