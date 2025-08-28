@@ -19,6 +19,7 @@ async def create_user(update: Update) -> TelegramUserModel:
         user, created = TelegramUserModel.objects.get_or_create(
             user_id=user_id,
             defaults={
+                "chat_id": update.effective_chat.id,  # type: ignore
                 "username": effective_user.username,  # type: ignore
                 "first_name": effective_user.first_name,  # type: ignore
                 "last_name": effective_user.last_name,  # type: ignore

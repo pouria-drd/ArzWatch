@@ -19,10 +19,12 @@ class TelegramUserModel(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+    chat_id = models.BigIntegerField(unique=True)
     user_id = models.BigIntegerField(unique=True)
     username = models.CharField(max_length=150, blank=True, null=True)
-    first_name = models.CharField(max_length=150, blank=True, null=True)
+
     last_name = models.CharField(max_length=150, blank=True, null=True)
+    first_name = models.CharField(max_length=150, blank=True, null=True)
 
     is_bot = models.BooleanField(default=False)
     is_premium = models.BooleanField(default=False)

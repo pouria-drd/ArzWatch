@@ -1,2 +1,3 @@
 from .telegram_user_models import TelegramUserModel
 from .telegram_command_model import TelegramCommandModel
+from .telegram_message_model import TelegramMessageModel

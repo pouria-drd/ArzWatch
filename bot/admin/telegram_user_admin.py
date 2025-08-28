@@ -9,6 +9,7 @@ class TelegramUserAdmin(admin.ModelAdmin):
     list_display = [
         "user_id",
         "name",
+        "chat_id",
         "status",
         "usage",
         "created_at",
@@ -48,6 +49,7 @@ class TelegramUserAdmin(admin.ModelAdmin):
 
     readonly_fields = (
         "user_id",
+        "chat_id",
         "username",
         "first_name",
         "last_name",
@@ -64,6 +66,7 @@ class TelegramUserAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "user_id",
+                    "chat_id",
                     "username",
                     "first_name",
                     "last_name",
