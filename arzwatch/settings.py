@@ -268,6 +268,11 @@ LOGGING = {
             "filename": os.path.join(LOGS_DIR, "api_key.log"),
             "formatter": "json",
         },
+        "email_thread_file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOGS_DIR, "email_thread.log"),
+            "formatter": "json",
+        },
     },
     "loggers": {
         # "": {
@@ -297,6 +302,11 @@ LOGGING = {
         },
         "api_key": {
             "handlers": ["console", "api_key_file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "email_thread": {
+            "handlers": ["console", "email_thread_file"],
             "level": "INFO",
             "propagate": False,
         },
