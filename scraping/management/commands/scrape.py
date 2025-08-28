@@ -75,6 +75,7 @@ from ...sources import (
     MilliScraper,
     WallexScraper,
     ZarminexScraper,
+    AlanchandScraper,
     ArzDigitalScraper,
 )
 
@@ -86,6 +87,7 @@ SCRAPER_MAP = {
     "milli": MilliScraper,
     "wallex": WallexScraper,
     "zarminex": ZarminexScraper,
+    "alanchand": AlanchandScraper,
     "arzdigital": ArzDigitalScraper,
 }
 
