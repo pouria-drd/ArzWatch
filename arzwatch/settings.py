@@ -167,7 +167,7 @@ CORS_ALLOW_METHODS = [
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         # "rest_framework.permissions.IsAuthenticated",  # Only authenticated users can access
-        "rest_framework.permissions.AllowAny",  #  Allow anonymous users to access
+        "rest_framework.permissions.IsAdminUser",  #  Allow anonymous users to access
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 100,

@@ -11,6 +11,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 
 from ...utils import parse_iso_dt
 from ...models import InstrumentModel, PriceTickModel
+from api_key.authentication import APIKeyAuthentication
 from ..serializers import InstrumentSerializer, PriceTickSerializer
 
 logger = logging.getLogger("scraping_api")
@@ -55,12 +56,13 @@ class InstrumentListView(ListAPIView):
     """
 
     serializer_class = InstrumentSerializer
+    authentication_classes = [APIKeyAuthentication]
 
     throttle_scope = "scraping"
     throttle_classes = [ScopedRateThrottle]
 
-    filter_backends = [DjangoFilterBackend]
     filterset_fields = ["category"]
+    filter_backends = [DjangoFilterBackend]
 
     def get_queryset(self):
         qs = InstrumentModel.objects.filter(enabled=True)
@@ -210,6 +212,8 @@ class InstrumentHistoryView(ListAPIView):
     """
 
     serializer_class = PriceTickSerializer
+    authentication_classes = [APIKeyAuthentication]
+
     throttle_scope = "scraping"
     throttle_classes = [ScopedRateThrottle]
 
