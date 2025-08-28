@@ -47,18 +47,18 @@ class TelegramUserAdmin(admin.ModelAdmin):
 
     set_banned.short_description = "Set banned"
 
-    # readonly_fields = (
-    #     "user_id",
-    #     "chat_id",
-    #     "username",
-    #     "first_name",
-    #     "last_name",
-    #     "is_bot",
-    #     "language_code",
-    #     "is_premium",
-    #     "created_at",
-    #     "last_seen",
-    # )
+    readonly_fields = (
+        # "user_id",
+        # "chat_id",
+        # "username",
+        # "first_name",
+        # "last_name",
+        # "is_bot",
+        # "language_code",
+        # "is_premium",
+        "created_at",
+        "last_seen",
+    )
 
     fieldsets = (
         (
