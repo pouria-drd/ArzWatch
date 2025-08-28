@@ -1,5 +1,6 @@
 import time
 import logging
+from decimal import Decimal
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any
 
@@ -23,14 +24,12 @@ logger = logging.getLogger(__name__)
 
 class MilliScraper(BaseScraper):
     """
-    Scraper to fetch prices from https://milli.ir
+    Scraper to fetch Bahar coin data from https://milli.gold
     Uses SourceConfigModel for configurations.
     Returns a list of dicts: symbol, price, currency, meta
     """
 
-    def __init__(
-        self, source, auto_driver: bool = False, instruments: List[str] | None = None
-    ):
+    def __init__(self, source, auto_driver: bool = False, instruments: List[str] | None = None):  # type: ignore
         super().__init__(source, auto_driver)
         self.source_configs = SourceConfigModel.objects.filter(source=source)
         if instruments:
@@ -58,24 +57,22 @@ class MilliScraper(BaseScraper):
 
         for config in self.source_configs:
             symbol = config.instrument.symbol
-            path = config.path
-            url = f"{self.source.base_url}/{path}"
+            url = f"{self.source.base_url}/{config.path}"
             try:
                 logger.info(f"Fetching data for {symbol} from {url}")
                 self.driver.get(url)  # type: ignore
 
-                # Wait for the bx_coin div to load
+                # Wait for the container to load
                 WebDriverWait(self.driver, 30).until(  # type: ignore
                     EC.presence_of_element_located((By.CSS_SELECTOR, "div.bx_coin"))
                 )
 
-                # Wait for the page to load all data
                 time.sleep(self.sleep_time)
 
                 soup = BeautifulSoup(self.driver.page_source, "html.parser")  # type: ignore
-                bx_coin = soup.select_one("div.bx_coin")
-                if not bx_coin:
-                    raise ValueError("bx_coin div not found")
+                coin_div = soup.select_one("div.bx_coin")
+                if not coin_div:
+                    raise ValueError("Coin info container not found")
 
                 data: Dict[str, Any] = {
                     "symbol": symbol,
@@ -83,50 +80,30 @@ class MilliScraper(BaseScraper):
                     "meta": {"source_url": url},
                 }
 
-                # Extract data from bx_coin div
-                price_elem = bx_coin.select_one("div.last_price_coin span")
-                if price_elem:
-                    price_text = normalize_digits(
-                        price_elem.get_text(strip=True)
-                    ).replace(",", "")
-                    data["price"] = to_decimal(price_text)
-                    logger.debug(f"Extracted price for {symbol}: {price_text} IRR")
-                else:
-                    raise ValueError("Last price not found")
+                for item in coin_div.find_all("div"):
+                    label = normalize_digits(item.find("label").get_text(strip=True))  # type: ignore
+                    value = normalize_digits(item.find("span").get_text(strip=True))  # type: ignore
 
-                change_percentage_elem = bx_coin.select_one("div.discount_coin span")
-                if change_percentage_elem:
-                    change_percentage = normalize_digits(
-                        change_percentage_elem.get_text(strip=True)
-                    )
-                    data["meta"]["change_percentage"] = change_percentage
-                    logger.debug(
-                        f"Extracted change_percentage for {symbol}: {change_percentage}"
-                    )
-                else:
-                    logger.warning(f"Change percentage not found for {symbol}")
+                    if "آخرین قیمت" in label:
+                        data["price"] = to_decimal(value)
+                    elif "درصد تغییر" in label:
+                        data["meta"]["change_percentage"] = to_decimal(value)
+                    elif "مقدار تغییر" in label:
+                        data["meta"]["change_amount"] = to_decimal(value)
+                    elif "حباب" in label:
+                        data["meta"]["bubble"] = to_decimal(value)
 
-                change_amount_elem = bx_coin.select_one("div.change_coin span")
-                if change_amount_elem:
-                    change_amount = normalize_digits(
-                        change_amount_elem.get_text(strip=True)
-                    ).replace(",", "")
-                    data["meta"]["change_amount"] = change_amount
-                    logger.debug(
-                        f"Extracted change_amount for {symbol}: {change_amount}"
-                    )
-                else:
-                    logger.warning(f"Change amount not found for {symbol}")
+                if "price" not in data:
+                    raise ValueError("Current price not found")
 
-                bubble_elem = bx_coin.select_one("div.blubbe_coin span")
-                if bubble_elem:
-                    bubble = normalize_digits(bubble_elem.get_text(strip=True)).replace(
-                        ",", ""
-                    )
-                    data["meta"]["bubble"] = bubble
-                    logger.debug(f"Extracted bubble for {symbol}: {bubble}")
-                else:
-                    logger.warning(f"Bubble not found for {symbol}")
+                # Convert any Decimal in meta to float for JSONField
+                for key, val in data["meta"].items():
+                    if isinstance(val, Decimal):
+                        data["meta"][key] = float(val)
+
+                # Also convert price to float if needed
+                if isinstance(data["price"], Decimal):
+                    data["price"] = float(data["price"])
 
                 results.append(data)
 
