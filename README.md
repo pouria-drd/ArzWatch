@@ -19,6 +19,43 @@
 
 ```
 arzwatch/
+  api_key/
+    admin.py             # API key admin
+    authentication.py    # API key authentication
+    models.py            # API key model
+
+  bot/
+    management/commands/
+      runtelegram.py      # Telegram bot CLI
+    models/
+      telegram_user.py    # Telegram user model
+      telegram_command.py # Telegram command model
+    telegram/
+      commands/
+        start.py          # /start command
+        usage.py          # /usage command
+        setlang.py        # /setlang command
+        gold.py           # /gold command
+        coin.py           # /coin command
+        crypto.py         # /crypto command
+        currency.py       # /currency command
+      helpers/
+        create_user.py    # create Telegram user
+        change_language.py# change Telegram user language
+        is_valid_language.py # check if Telegram user language is valid
+        fetch_instruments.py # fetch instruments
+        increment_requests.py # increment Telegram user requests
+        get_valid_user.py # get valid Telegram user
+        get_gold_message.py # get gold message
+        get_coin_message.py # get coin message
+        get_usage_message.py # get usage message
+        get_crypto_message.py # get crypto message
+        get_currency_message.py # get currency message
+      messages.py         # messages for Telegram bot
+      telegram.py         # Telegram bot
+    utils/
+      persian_date_time.py # Persian date and time
+
   scraping/
     management/commands/
       scrape.py            # unified CLI (default‑first logic)
