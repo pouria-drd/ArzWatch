@@ -4,15 +4,8 @@ from django.db.models.functions import Coalesce
 from scraping.api.serializers import InstrumentSerializer
 from scraping.models import InstrumentModel, PriceTickModel
 
-CATEGORY_NAMES = {
-    "gold": {"fa": "طلا", "en": "Gold"},
-    "coin": {"fa": "سکه", "en": "Coin"},
-    "currency": {"fa": "ارز", "en": "Currency"},
-    "crypto": {"fa": "رمزارز", "en": "Crypto"},
-}
 
-
-async def fetch_instruments(category: str, lang: str = "fa") -> dict:
+async def fetch_instruments(category: str) -> dict:
     """
     Fetch instruments of a given category (optional) with the latest tick.
     Returns serialized data as dict, including a localized category name.
@@ -63,9 +56,5 @@ async def fetch_instruments(category: str, lang: str = "fa") -> dict:
     queryset = await sync_to_async(list)(get_queryset())
     serializer = InstrumentSerializer(queryset, many=True)
     data = {"results": serializer.data, "count": len(serializer.data)}
-
-    # Add a readable category name
-    if category:
-        data["category_name"] = CATEGORY_NAMES.get(category, {}).get(lang, category)
 
     return data

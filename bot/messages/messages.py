@@ -26,13 +26,13 @@ MESSAGES = {
         "fa": (
             "📊<b>{name} ({symbol})</b>\n\n"
             "💰قیمت: {price:,} {currency}\n"
-            "📅<b>آخرین به روز رسانی:</b>\n{date} {time}\n"
+            "📅<b>آخرین به روز رسانی:</b>{date} {time}\n"
             "🔗منبع: {source}\n\n"
         ),
         "en": (
             "📊<b>{name} ({symbol})</b>\n\n"
             "💰Price: {price:,} {currency}\n"
-            "📅<b>Last updated:</b>\n{date}\n"
+            "📅<b>Last updated:</b>{date} {time}\n"
             "🔗Source: {source}\n\n"
         ),
     },
@@ -40,13 +40,29 @@ MESSAGES = {
         "fa": (
             "📊<b>{name} ({symbol})</b>\n\n"
             "💰<b>قیمت:</b> {price:,} {currency}\n"
-            "📅<b>آخرین به روز رسانی:</b>\n{date} {time}\n"
+            "📅<b>آخرین به روز رسانی:</b>{date} {time}\n"
             "🔗منبع: {source}\n\n"
         ),
         "en": (
             "📊<b>{name} ({symbol})</b>\n\n"
             "💰<b>Price:</b> {price:,} {currency}\n"
-            "📅<b>Last updated:</b>\n{date} {time}\n"
+            "📅<b>Last updated:</b>{date} {time}\n"
+            "🔗Source: {source}\n\n"
+        ),
+    },
+    "crypto_item": {
+        "fa": (
+            "📊<b>{name} ({symbol})</b>\n\n"
+            "💰<b>قیمت:</b> {price_irr:,} ریال\n"
+            "💰<b>قیمت دلاری:</b> {price:,} {currency}\n"
+            "📅<b>آخرین به روز رسانی:</b>{date} {time}\n"
+            "🔗منبع: {source}\n\n"
+        ),
+        "en": (
+            "📊<b>{name} ({symbol})</b>\n\n"
+            "💰<b>Price:</b> {price:,} {currency}\n"
+            "💰<b>Price in IRR:</b> {price_irr:,} IRR\n"
+            "📅<b>Last updated:</b>{date} {time}\n"
             "🔗Source: {source}\n\n"
         ),
     },

@@ -8,6 +8,7 @@ from .get_valid_user import get_valid_user
 from .get_gold_message import get_gold_message
 from .get_coin_message import get_coin_message
 from .get_usage_message import get_usage_message
+from .get_crypto_message import get_crypto_message
 
 __all__ = [
     "create_user",
@@ -19,4 +20,5 @@ __all__ = [
     "get_gold_message",
     "get_coin_message",
     "get_usage_message",
+    "get_crypto_message",
 ]

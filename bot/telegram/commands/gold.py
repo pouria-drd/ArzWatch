@@ -26,13 +26,9 @@ async def gold(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tg_user = result["tg_user"]
     lang = getattr(tg_user, "preferred_language", "fa")
     # Fetch instruments
-    query_result = await fetch_instruments(category="gold", lang=lang)
+    query_result = await fetch_instruments(category="gold")
     # Build gold message
-    message = await get_gold_message(
-        tg_user=tg_user,
-        query_result=query_result,
-        lang=lang,
-    )
+    message = await get_gold_message(tg_user=tg_user, query_result=query_result)
     # Successful update → log and reply
     logger.info(f"{tg_user} requested gold info.")
     await update.message.reply_text(  # type: ignore

@@ -5,51 +5,45 @@ from .increment_requests import increment_requests
 from bot.models import TelegramUserModel, TelegramCommandModel
 
 
-async def get_coin_message(
-    tg_user: TelegramUserModel, query_result: dict, lang: str = "fa"
-) -> str:
+async def get_coin_message(tg_user: TelegramUserModel, query_result: dict) -> str:
+    """
+    Generates a message for the /coin command.
+    """
     if not query_result or "results" not in query_result:
-        return get_message("no_data", preferred_lang=lang)
+        return get_message(key="no_data", user=tg_user)
 
-    instruments = query_result["results"]
     messages = []
+    instruments = query_result["results"]
+    user_lang = getattr(tg_user, "preferred_language", "fa")
 
     for inst in instruments:
-        name = inst.get("name", "-")
-        fa_name = inst.get("faName", "-")
-        symbol = inst.get("symbol", "-")
-        latest = inst.get("latestPriceTick", {})
-        price = latest.get("price", "-")
-        currency = latest.get("currency", "")
-        meta = latest.get("meta", {})
-        source = meta.get("source_url", "")
-        timestamp = latest.get("timestamp", "")
+        symbol = inst.get("symbol", "-") or "-"
+        latest = inst.get("latestPriceTick", {}) or {}
+        price = latest.get("price", "-") or "-"
+        currency = latest.get("currency", "") or ""
+        meta = latest.get("meta", {}) or {}
+        source = meta.get("source_url", "") or ""
+        timestamp = latest.get("timestamp", "") or ""
 
-        if lang == "en":
-            date = timestamp.strftime("%Y-%m-%d %H:%M:")
-            msg = get_message(
-                "coin_item",
-                preferred_lang=lang,
-                name=name,
-                symbol=symbol,
-                price=price,
-                currency=currency,
-                date=date,
-                source=source,
-            )
+        if user_lang == "en":
+            name = inst.get("name", "-")
+            date = timestamp.strftime("%Y-%m-%d")  # type: ignore
+            time = timestamp.strftime("%H:%M")  # type: ignore
         else:
-            date, time = persian_date_time(timestamp)
-            msg = get_message(
-                "coin_item",
-                preferred_lang=lang,
-                name=fa_name,
-                symbol=symbol,
-                price=price,
-                currency=currency,
-                date=date,
-                time=time,
-                source=source,
-            )
+            name = inst.get("faName", "-")
+            date, time = persian_date_time(timestamp)  # type: ignore
+
+        msg = get_message(
+            key="coin_item",
+            user=tg_user,
+            name=name,
+            price=price,
+            symbol=symbol,
+            currency=currency,
+            date=date,
+            time=time,
+            source=source,
+        )
 
         messages.append(msg)
 

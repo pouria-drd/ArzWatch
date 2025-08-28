@@ -6,6 +6,7 @@ from .setlang import setlang
 # Instruments commands
 from .gold import gold
 from .coin import coin
+from .crypto import crypto
 
 __all__ = [
     "start",
@@ -13,4 +14,5 @@ __all__ = [
     "setlang",
     "gold",
     "coin",
+    "crypto",
 ]
