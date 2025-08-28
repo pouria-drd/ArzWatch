@@ -14,6 +14,7 @@ from bot.telegram.commands import (
     gold,
     coin,
     crypto,
+    currency,
 )
 
 logger = logging.getLogger("telegram_bot")
@@ -53,7 +54,7 @@ class Command(BaseCommand):
                     CommandHandler("gold", gold),
                     CommandHandler("coin", coin),
                     CommandHandler("crypto", crypto),
-                    # CommandHandler("currency", currency),
+                    CommandHandler("currency", currency),
                 ]
             )
 

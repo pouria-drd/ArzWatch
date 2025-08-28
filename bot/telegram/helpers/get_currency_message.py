@@ -1,4 +1,3 @@
-from decimal import Decimal
 from bot.messages import get_message
 from asgiref.sync import sync_to_async
 from bot.utils import persian_date_time
@@ -6,7 +5,7 @@ from .increment_requests import increment_requests
 from bot.models import TelegramUserModel, TelegramCommandModel
 
 
-async def get_crypto_message(tg_user: TelegramUserModel, query_result: dict) -> str:
+async def get_currency_message(tg_user: TelegramUserModel, query_result: dict) -> str:
     if not query_result or "results" not in query_result:
         return get_message(key="no_data", user=tg_user)
 
@@ -19,13 +18,6 @@ async def get_crypto_message(tg_user: TelegramUserModel, query_result: dict) -> 
         latest = inst.get("latestPriceTick", {})
         meta = latest.get("meta", {})
         price = latest.get("price")
-        price_irr = Decimal(meta.get("price_irr"))
-
-        if isinstance(price, (int, float, Decimal)):
-            price = round(price, 2)
-        else:
-            price = 0
-
         currency = latest.get("currency", "")
         source = meta.get("source_url", "")
         timestamp = latest.get("timestamp", "")
@@ -39,12 +31,11 @@ async def get_crypto_message(tg_user: TelegramUserModel, query_result: dict) -> 
             date, time = persian_date_time(timestamp)
 
         msg = get_message(
-            key="crypto_item",
+            key="currency_item",
             user=tg_user,
             name=name,
             price=price,
             symbol=symbol,
-            price_irr=price_irr,
             currency=currency,
             date=date,
             time=time,
@@ -59,7 +50,7 @@ async def get_crypto_message(tg_user: TelegramUserModel, query_result: dict) -> 
         increment_requests(
             tg_user,
             TelegramCommandModel.CommandType.REQUEST,
-            f"{tg_user} requested crypto info.",
+            f"{tg_user} requested currency info.",
         )
 
     await log_request()

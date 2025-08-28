@@ -7,6 +7,7 @@ from .setlang import setlang
 from .gold import gold
 from .coin import coin
 from .crypto import crypto
+from .currency import currency
 
 __all__ = [
     "start",
@@ -15,4 +16,5 @@ __all__ = [
     "gold",
     "coin",
     "crypto",
+    "currency",
 ]

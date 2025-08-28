@@ -66,6 +66,20 @@ MESSAGES = {
             "🔗Source: {source}\n\n"
         ),
     },
+    "currency_item": {
+        "fa": (
+            "📊<b>{name} ({symbol})</b>\n\n"
+            "💰<b>قیمت:</b> {price:,} {currency}\n"
+            "📅<b>آخرین به روز رسانی:</b>{date} {time}\n"
+            "🔗منبع: {source}\n\n"
+        ),
+        "en": (
+            "📊<b>{name} ({symbol})</b>\n\n"
+            "💰<b>Price:</b> {price:,} {currency}\n"
+            "📅<b>Last updated:</b>{date} {time}\n"
+            "🔗Source: {source}\n\n"
+        ),
+    },
     "usage": {
         "fa": (
             "خیلی خوشحالیم که از ربات ما استفاده می‌کنی <b>{name}</b>🎉\n\n"
