@@ -41,9 +41,9 @@ class TelegramUserModel(models.Model):
         max_length=10, choices=Status.choices, default=Status.ACTIVE
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
     last_seen = models.DateTimeField(auto_now=True)
     last_reset_at = models.DateTimeField(default=django_now)
+    created_at = models.DateTimeField(default=django_now, blank=True, null=True)
 
     class Meta:
         indexes = [
