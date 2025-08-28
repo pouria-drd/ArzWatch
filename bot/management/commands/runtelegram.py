@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 from bot.telegram.commands import (
     # General commands
     start,
+    help,
     usage,
     setlang,
     # Instruments commands
@@ -48,6 +49,7 @@ class Command(BaseCommand):
                 [
                     # General commands
                     CommandHandler("start", start),
+                    CommandHandler("help", help),
                     CommandHandler("usage", usage),
                     CommandHandler("setlang", setlang),
                     # Instruments commands

@@ -98,6 +98,44 @@ MESSAGES = {
             "{warning}"
         ),
     },
+    "help": {
+        "fa": (
+            "✨ دستورات موجود در ربات:\n\n"
+            "/help - مشاهده راهنمای ربات\n"
+            "/usage - اطلاعات مصرفی شما\n\n"
+            + "\n".join(
+                [
+                    f"/setlang <code>{code}</code> - تغییر زبان ربات به <b>{AVAILABLE_LANGS[code]}</b>"
+                    for code in AVAILABLE_LANGS.keys()
+                ]
+            )
+            + "\n\n"
+            "/gold - مشاهده قیمت لحظه‌ای طلا 💰\n"
+            "/coin - مشاهده قیمت لحظه‌ای سکه 🪙\n"
+            "/crypto - مشاهده قیمت لحظه‌ای کریپتو ₿\n"
+            "/currency - مشاهده قیمت لحظه‌ای ارزها 💵\n\n"
+            "برای انتقادات، پیشنهادات یا گزارش باگ، لطفاً به این آیدی پیام دهید:\n"
+            "@pouria_drd"
+        ),
+        "en": (
+            "✨ Available commands in this bot:\n\n"
+            "/help - Bot usage guide\n"
+            "/usage - Your usage info\n\n"
+            + "\n".join(
+                [
+                    f"/setlang <code>{code}</code> - Change bot language to <b>{AVAILABLE_LANGS[code]}</b>"
+                    for code in AVAILABLE_LANGS.keys()
+                ]
+            )
+            + "\n\n"
+            "/gold - Live gold price 💰\n"
+            "/coin - Live coin price 🪙\n"
+            "/crypto - Live crypto price ₿\n"
+            "/currency - Live currency rates 💵\n\n"
+            "For feedback, suggestions, or bug reports, please contact:\n"
+            "@pouria_drd"
+        ),
+    },
     "warnings": {
         "fa": {
             "100": "⛔<b>شما به سقف مجاز امروز رسیدید !</b>",

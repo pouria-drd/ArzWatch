@@ -1,4 +1,5 @@
 # General commands
+from .help import help
 from .start import start
 from .usage import usage
 from .setlang import setlang
@@ -10,6 +11,7 @@ from .crypto import crypto
 from .currency import currency
 
 __all__ = [
+    "help",
     "start",
     "usage",
     "setlang",
