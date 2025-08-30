@@ -39,8 +39,7 @@ class APIKeyAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "masked_key",
-        "request_count",
-        "max_requests",
+        "request_status",
         "usage_percentage",
         "enabled",
         "created_at",
@@ -76,6 +75,13 @@ class APIKeyAdmin(admin.ModelAdmin):
         return f"{obj.key[:4]}...{obj.key[-4:]}" if len(obj.key) > 8 else obj.key
 
     masked_key.short_description = "API Key"
+
+    def request_status(self, obj: APIKey) -> str:
+        requests = obj.request_count
+        max_requests = obj.max_requests
+        return f"{requests}/{max_requests}"
+
+    request_status.short_description = "Requests"
 
     def usage_percentage(self, obj: APIKey) -> str:
         return f"{min(100, int((obj.request_count / obj.max_requests) * 100))}%"

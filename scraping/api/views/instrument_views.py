@@ -4,6 +4,7 @@ from django.db.models import OuterRef, Subquery
 
 from rest_framework import exceptions
 from rest_framework.generics import ListAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework.throttling import ScopedRateThrottle
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
@@ -56,6 +57,7 @@ class InstrumentListView(ListAPIView):
     """
 
     serializer_class = InstrumentSerializer
+    permission_classes = [AllowAny]
     authentication_classes = [APIKeyAuthentication]
 
     throttle_scope = "scraping"
