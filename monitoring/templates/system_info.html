@@ -1,0 +1,567 @@
+{% extends "admin/base_site.html" %}
+{% load admin_urls static admin_list %}
+
+{% block title %}System Monitor Dashboard{% endblock %}
+
+{% block extrastyle %}
+<style>
+    /* Django Admin Theme Compatible Styles */
+    .dashboard-container {
+        background: var(--body-bg, #f8f9fa);
+        padding: 0;
+        margin: 0;
+    }
+
+    .dashboard-header {
+        background: var(--primary, #79aec8);
+        color: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .dashboard-title {
+        font-size: 1.8rem;
+        font-weight: normal;
+        margin: 0;
+        font-family: var(--font-family-primary, "Roboto", "Lucida Grande", Verdana, Arial, sans-serif);
+    }
+
+    .dashboard-subtitle {
+        opacity: 0.9;
+        font-size: 0.95rem;
+        margin-top: 5px;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 0 20px 20px;
+    }
+
+    .metric-card {
+        background: white;
+        border: 1px solid var(--border-color, #ddd);
+        border-radius: 4px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: box-shadow 0.2s ease;
+    }
+
+    .metric-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .metric-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--body-fg, #333);
+        margin-bottom: 15px;
+        font-family: var(--font-family-primary, "Roboto", "Lucida Grande", Verdana, Arial, sans-serif);
+        border-bottom: 1px solid var(--hairline-color, #e1e4e8);
+        padding-bottom: 8px;
+    }
+
+    /* Admin Color Scheme for Progress Rings */
+    .progress-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 15px;
+    }
+
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+
+    .progress-ring-bg {
+        fill: none;
+        stroke: var(--hairline-color, #e1e4e8);
+        stroke-width: 6;
+    }
+
+    .progress-ring-fill {
+        fill: none;
+        stroke-width: 6;
+        stroke-linecap: round;
+        transition: stroke-dasharray 1s ease;
+    }
+
+    .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--body-fg, #333);
+        font-family: var(--font-family-monospace, "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace);
+    }
+
+    .metric-details {
+        color: var(--body-quiet-color, #666);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .metric-details > div {
+        margin-bottom: 4px;
+        display: flex;
+        justify-content: space-between;
+        padding: 2px 0;
+    }
+
+    .metric-value {
+        font-weight: bold;
+        color: var(--body-fg, #333);
+        font-family: var(--font-family-monospace, "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace);
+    }
+
+    .system-info {
+        background: white;
+        border: 1px solid var(--border-color, #ddd);
+        border-radius: 4px;
+        padding: 20px;
+        margin: 0 20px 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .system-info h3 {
+        color: var(--body-fg, #333);
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        font-family: var(--font-family-primary, "Roboto", "Lucida Grande", Verdana, Arial, sans-serif);
+        border-bottom: 1px solid var(--hairline-color, #e1e4e8);
+        padding-bottom: 8px;
+    }
+
+    .system-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 10px;
+    }
+
+    .system-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        background: var(--darkened-bg, #f8f9fa);
+        border-radius: 3px;
+        border-left: 3px solid var(--primary, #79aec8);
+    }
+
+    .system-label {
+        font-weight: bold;
+        color: var(--body-fg, #333);
+        font-size: 0.9rem;
+    }
+
+    .system-value {
+        color: var(--body-quiet-color, #666);
+        font-family: var(--font-family-monospace, "Bitstream Vera Sans Mono", Monaco, "Courier New", Courier, monospace);
+        font-size: 0.85rem;
+    }
+
+    .refresh-indicator {
+        position: fixed;
+        top: 120px;
+        right: 20px;
+        background: white;
+        border: 1px solid var(--border-color, #ddd);
+        padding: 6px 12px;
+        border-radius: 3px;
+        font-size: 0.8rem;
+        color: var(--body-quiet-color, #666);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        z-index: 1000;
+        font-family: var(--font-family-primary, "Roboto", "Lucida Grande", Verdana, Arial, sans-serif);
+    }
+
+    .refresh-indicator.updating {
+        background: var(--primary, #79aec8);
+        color: white;
+        border-color: var(--primary, #79aec8);
+    }
+
+    /* CPU - Primary Blue */
+    .cpu-progress { stroke: var(--primary, #79aec8); }
+    
+    /* RAM - Success Green */
+    .ram-progress { stroke: var(--success-fg, #28a745); }
+    
+    /* Swap - Warning Orange */
+    .swap-progress { stroke: var(--warning-fg, #ffc107); }
+    
+    /* Disk - Info Teal */
+    .disk-progress { stroke: var(--info-fg, #17a2b8); }
+
+    /* Storage cards with different admin colors */
+    .disk-progress-1 { stroke: var(--primary, #79aec8); }
+    .disk-progress-2 { stroke: var(--success-fg, #28a745); }
+    .disk-progress-3 { stroke: var(--info-fg, #17a2b8); }
+    .disk-progress-4 { stroke: var(--warning-fg, #ffc107); }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .metrics-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+            padding: 0 15px 15px;
+        }
+        
+        .metric-card, .system-info {
+            margin: 0 15px 15px;
+        }
+        
+        .dashboard-header {
+            padding: 15px;
+        }
+        
+        .dashboard-title {
+            font-size: 1.5rem;
+        }
+        
+        .progress-container {
+            width: 90px;
+            height: 90px;
+        }
+        
+        .refresh-indicator {
+            position: relative;
+            top: auto;
+            right: auto;
+            margin: 0 20px 15px;
+            display: block;
+        }
+    }
+
+    /* Admin breadcrumb compatibility */
+    .breadcrumbs {
+        background: var(--breadcrumbs-bg, #79aec8);
+        padding: 10px 20px;
+        border-bottom: none;
+    }
+
+    /* Dark mode support (if admin has dark theme) */
+    @media (prefers-color-scheme: dark) {
+        .metric-card, .system-info, .refresh-indicator {
+            background: var(--body-bg, #1e1e1e);
+            border-color: var(--border-color, #444);
+            color: var(--body-fg, #fff);
+        }
+        
+        .progress-ring-bg {
+            stroke: var(--border-color, #444);
+        }
+        
+        .system-item {
+            background: var(--darkened-bg, #2a2a2a);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='monitoring' %}">Monitoring</a>
+    &rsaquo; <a href="{% url 'admin:monitoring_systeminfomodel_changelist' %}">System Monitor</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="refresh-indicator" id="refresh-indicator">
+        <strong>Status:</strong> <span id="last-update">Active</span>
+    </div>
+
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">System Monitor Dashboard</h1>
+        <p class="dashboard-subtitle">Real-time system performance monitoring and statistics</p>
+    </div>
+
+    <div class="metrics-grid">
+        <!-- CPU Card -->
+        <div class="metric-card">
+            <h3 class="metric-title">🔧 CPU Usage</h3>
+            <div class="progress-container">
+                <svg class="progress-ring" width="100" height="100">
+                    <circle class="progress-ring-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="progress-ring-fill cpu-progress" 
+                            cx="50" cy="50" r="45" 
+                            stroke-dasharray="0, 282.743"
+                            id="cpu-progress"></circle>
+                </svg>
+                <div class="progress-text" id="cpu-text">{{ system_info.cpu.usage_percent|floatformat:1 }}%</div>
+            </div>
+            <div class="metric-details">
+                <div>
+                    <span>Physical Cores:</span>
+                    <span class="metric-value">{{ system_info.cpu.cores }}</span>
+                </div>
+                <div>
+                    <span>Logical Processors:</span>
+                    <span class="metric-value">{{ system_info.cpu.threads }}</span>
+                </div>
+                {% if system_info.cpu.load_avg %}
+                <div>
+                    <span>Load Average:</span>
+                    <span class="metric-value">{{ system_info.cpu.load_avg.0|floatformat:2 }}</span>
+                </div>
+                {% endif %}
+                {% if system_info.cpu.frequency %}
+                <div>
+                    <span>Frequency:</span>
+                    <span class="metric-value">{{ system_info.cpu.frequency.current|floatformat:0 }} MHz</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- RAM Card -->
+        <div class="metric-card">
+            <h3 class="metric-title">🧠 Memory Usage</h3>
+            <div class="progress-container">
+                <svg class="progress-ring" width="100" height="100">
+                    <circle class="progress-ring-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="progress-ring-fill ram-progress" 
+                            cx="50" cy="50" r="45" 
+                            stroke-dasharray="0, 282.743"
+                            id="ram-progress"></circle>
+                </svg>
+                <div class="progress-text" id="ram-text">{{ system_info.ram.percent|floatformat:1 }}%</div>
+            </div>
+            <div class="metric-details">
+                <div>
+                    <span>Used:</span>
+                    <span class="metric-value" id="ram-used">{{ system_info.ram.used|floatformat:1 }} GB</span>
+                </div>
+                <div>
+                    <span>Available:</span>
+                    <span class="metric-value" id="ram-available">{{ system_info.ram.available|floatformat:1 }} GB</span>
+                </div>
+                <div>
+                    <span>Total:</span>
+                    <span class="metric-value" id="ram-total">{{ system_info.ram.total|floatformat:1 }} GB</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Swap Card -->
+        <div class="metric-card">
+            <h3 class="metric-title">💾 Virtual Memory</h3>
+            <div class="progress-container">
+                <svg class="progress-ring" width="100" height="100">
+                    <circle class="progress-ring-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="progress-ring-fill swap-progress" 
+                            cx="50" cy="50" r="45" 
+                            stroke-dasharray="0, 282.743"
+                            id="swap-progress"></circle>
+                </svg>
+                <div class="progress-text" id="swap-text">{{ system_info.swap.percent|floatformat:1 }}%</div>
+            </div>
+            <div class="metric-details">
+                <div>
+                    <span>Used:</span>
+                    <span class="metric-value" id="swap-used">{{ system_info.swap.used|floatformat:1 }} GB</span>
+                </div>
+                <div>
+                    <span>Free:</span>
+                    <span class="metric-value" id="swap-free">{{ system_info.swap.free|floatformat:1 }} GB</span>
+                </div>
+                <div>
+                    <span>Total:</span>
+                    <span class="metric-value" id="swap-total">{{ system_info.swap.total|floatformat:1 }} GB</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Storage Cards -->
+        {% for disk in system_info.storage %}
+        <div class="metric-card">
+            <h3 class="metric-title">💿 {{ disk.mountpoint|default:disk.device }}</h3>
+            <div class="progress-container">
+                <svg class="progress-ring" width="100" height="100">
+                    <circle class="progress-ring-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="progress-ring-fill disk-progress-{{ forloop.counter }}" 
+                            cx="50" cy="50" r="45" 
+                            stroke-dasharray="0, 282.743"
+                            data-disk-progress="{{ disk.percent }}"></circle>
+                </svg>
+                <div class="progress-text">{{ disk.percent|floatformat:1 }}%</div>
+            </div>
+            <div class="metric-details">
+                <div>
+                    <span>Used:</span>
+                    <span class="metric-value">{{ disk.used|floatformat:1 }} GB</span>
+                </div>
+                <div>
+                    <span>Free:</span>
+                    <span class="metric-value">{{ disk.free|floatformat:1 }} GB</span>
+                </div>
+                <div>
+                    <span>Total:</span>
+                    <span class="metric-value">{{ disk.total|floatformat:1 }} GB</span>
+                </div>
+                {% if disk.fstype %}
+                <div>
+                    <span>File System:</span>
+                    <span class="metric-value">{{ disk.fstype|upper }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="system-info">
+        <h3>System Information</h3>
+        <div class="system-details">
+            <div class="system-item">
+                <span class="system-label">Operating System:</span>
+                <span class="system-value" id="system-os">{{ system_info.system.os }} {{ system_info.system.os_release }}</span>
+            </div>
+            <div class="system-item">
+                <span class="system-label">Hostname:</span>
+                <span class="system-value" id="system-hostname">{{ system_info.system.hostname }}</span>
+            </div>
+            <div class="system-item">
+                <span class="system-label">Architecture:</span>
+                <span class="system-value" id="system-arch">{{ system_info.system.architecture }}</span>
+            </div>
+            <div class="system-item">
+                <span class="system-label">System Uptime:</span>
+                <span class="system-value" id="system-uptime">{{ system_info.system.uptime }}</span>
+            </div>
+            {% if system_info.system.processor %}
+            <div class="system-item">
+                <span class="system-label">Processor:</span>
+                <span class="system-value" id="system-processor">{{ system_info.system.processor|truncatechars:35 }}</span>
+            </div>
+            {% endif %}
+            <div class="system-item">
+                <span class="system-label">Python Version:</span>
+                <span class="system-value" id="python-version">{{ system_info.system.python_version }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initial system data from Django
+    let systemData = {{ system_info|safe }};
+
+    function updateProgressRing(element, percentage) {
+        const circumference = 2 * Math.PI * 45; // radius = 45
+        const offset = circumference - (percentage / 100) * circumference;
+        element.style.strokeDasharray = `${circumference}, ${circumference}`;
+        element.style.strokeDashoffset = offset;
+    }
+
+    function updateSystemInfo(data) {
+        const indicator = document.getElementById('refresh-indicator');
+        const lastUpdate = document.getElementById('last-update');
+        
+        indicator.classList.add('updating');
+        lastUpdate.textContent = 'Updating...';
+
+        try {
+            // Update CPU
+            updateProgressRing(document.getElementById('cpu-progress'), data.cpu.usage_percent);
+            document.getElementById('cpu-text').textContent = `${data.cpu.usage_percent}%`;
+
+            // Update RAM
+            updateProgressRing(document.getElementById('ram-progress'), data.ram.percent);
+            document.getElementById('ram-text').textContent = `${data.ram.percent}%`;
+            document.getElementById('ram-used').textContent = `${data.ram.used} GB`;
+            document.getElementById('ram-available').textContent = `${data.ram.available} GB`;
+            document.getElementById('ram-total').textContent = `${data.ram.total} GB`;
+
+            // Update Swap
+            updateProgressRing(document.getElementById('swap-progress'), data.swap.percent);
+            document.getElementById('swap-text').textContent = `${data.swap.percent}%`;
+            document.getElementById('swap-used').textContent = `${data.swap.used} GB`;
+            document.getElementById('swap-free').textContent = `${data.swap.free} GB`;
+            document.getElementById('swap-total').textContent = `${data.swap.total} GB`;
+
+            // Update disk progress rings
+            const diskElements = document.querySelectorAll('[data-disk-progress]');
+            diskElements.forEach((element, index) => {
+                if (data.storage[index]) {
+                    updateProgressRing(element, data.storage[index].percent);
+                }
+            });
+
+            // Update system info
+            if (data.system) {
+                document.getElementById('system-uptime').textContent = data.system.uptime;
+            }
+
+            // Update timestamp
+            const now = new Date();
+            setTimeout(() => {
+                indicator.classList.remove('updating');
+                lastUpdate.textContent = `Updated ${now.toLocaleTimeString()}`;
+            }, 800);
+
+        } catch (error) {
+            console.error('Error updating dashboard:', error);
+            indicator.classList.remove('updating');
+            lastUpdate.textContent = 'Error updating';
+        }
+    }
+
+    // Initialize progress rings with current data
+    document.addEventListener('DOMContentLoaded', function() {
+        updateProgressRing(document.getElementById('cpu-progress'), systemData.cpu.usage_percent);
+        updateProgressRing(document.getElementById('ram-progress'), systemData.ram.percent);
+        updateProgressRing(document.getElementById('swap-progress'), systemData.swap.percent);
+        
+        // Initialize disk progress rings
+        const diskElements = document.querySelectorAll('[data-disk-progress]');
+        diskElements.forEach((element, index) => {
+            const percentage = parseFloat(element.getAttribute('data-disk-progress'));
+            updateProgressRing(element, percentage);
+        });
+
+        // Set initial status
+        const now = new Date();
+        document.getElementById('last-update').textContent = `Loaded ${now.toLocaleTimeString()}`;
+    });
+
+    // Auto-refresh every 5 seconds
+    setInterval(function() {
+        fetch('{% url "admin:monitoring_systeminfomodel_changelist" %}api/system-info/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                systemData = data;
+                updateSystemInfo(data);
+            })
+            .catch(error => {
+                console.error('Error fetching system data:', error);
+                const indicator = document.getElementById('refresh-indicator');
+                const lastUpdate = document.getElementById('last-update');
+                
+                indicator.style.background = 'var(--error-fg, #dc3545)';
+                indicator.style.color = 'white';
+                indicator.style.borderColor = 'var(--error-fg, #dc3545)';
+                lastUpdate.textContent = 'Connection error';
+                
+                setTimeout(() => {
+                    indicator.style.background = 'white';
+                    indicator.style.color = 'var(--body-quiet-color, #666)';
+                    indicator.style.borderColor = 'var(--border-color, #ddd)';
+                }, 3000);
+            });
+    }, 5000);
+</script>
+{% endblock %}

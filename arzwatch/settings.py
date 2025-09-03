@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "bot",
     "scraping",
     "api_key",
+    "monitoring",
 ]
 
 MIDDLEWARE = [
@@ -227,6 +228,30 @@ TELEGRAM_PROXY_URL = os.getenv("TELEGRAM_PROXY_URL", None)
 # ---------------------------------------------------------------
 # Logging Configuration
 # ---------------------------------------------------------------
+
+LOG_LEVEL = "DEBUG" if DEBUG else "INFO"
+
+
+# Ensure log directories exist
+def ensure_log_dir(log_dir):
+    os.makedirs(log_dir, exist_ok=True)
+
+
+# Define log directories for each app
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+APP_LOG_DIRS = {
+    "monitoring": os.path.join(LOG_DIR, "monitoring"),  # For monitoring app logs
+    "scraping": os.path.join(LOG_DIR, "scraping"),  # For scraping app logs
+    "telegram_bot": os.path.join(LOG_DIR, "telegram_bot"),  # For telegram bot logs
+    "api_key": os.path.join(LOG_DIR, "api_key"),  # For api key app logs
+    "email_thread": os.path.join(LOG_DIR, "email_thread"),  # For email thread logs
+    "scraping_api": os.path.join(LOG_DIR, "scraping_api"),  # For scraping api logs
+}
+
+# Create log directories
+for app, log_dir in APP_LOG_DIRS.items():
+    ensure_log_dir(log_dir)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -234,81 +259,33 @@ LOGGING = {
         "json": {
             "format": '{"time": "%(asctime)s", "level": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}',
         },
-        "verbose": {
-            "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] %(message)s",
+        "console": {
+            "format": "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
         },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "json",
-        },
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": os.path.join(LOGS_DIR, "arzwatch.log"),
-            "formatter": "json",
-        },
-        "scraping_file": {
-            "class": "logging.FileHandler",
-            "filename": os.path.join(LOGS_DIR, "scraping.log"),
-            "formatter": "json",
-        },
-        "scraping_api_file": {
-            "class": "logging.FileHandler",
-            "filename": os.path.join(LOGS_DIR, "scraping_api.log"),
-            "formatter": "json",
-        },
-        "telegram_bot_file": {
-            "class": "logging.FileHandler",
-            "filename": os.path.join(LOGS_DIR, "telegram_bot.log"),
-            "formatter": "json",
-        },
-        "api_key_file": {
-            "class": "logging.FileHandler",
-            "filename": os.path.join(LOGS_DIR, "api_key.log"),
-            "formatter": "json",
-        },
-        "email_thread_file": {
-            "class": "logging.FileHandler",
-            "filename": os.path.join(LOGS_DIR, "email_thread.log"),
-            "formatter": "json",
+            "formatter": "console",
         },
     },
-    "loggers": {
-        # "": {
-        #     "handlers": ["console", "file"],
-        #     "level": "INFO",
-        #     "propagate": False,
-        # },
-        # "django": {
-        #     "handlers": ["console", "file"],
-        #     "level": "INFO",
-        #     "propagate": False,
-        # },
-        "scraping": {
-            "handlers": ["console", "scraping_file"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "scraping_api": {
-            "handlers": ["console", "scraping_api_file"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "telegram_bot": {
-            "handlers": ["console", "telegram_bot_file"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "api_key": {
-            "handlers": ["console", "api_key_file"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "email_thread": {
-            "handlers": ["console", "email_thread_file"],
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
+    "loggers": {},
 }
+
+for app_name, dir_path in APP_LOG_DIRS.items():
+    handler_name = f"{app_name}_file"
+    LOGGING["handlers"][handler_name] = {
+        "class": "logging.handlers.TimedRotatingFileHandler",
+        "filename": os.path.join(dir_path, f"{app_name}.log"),
+        "level": "DEBUG" if DEBUG else "INFO",
+        "when": "midnight",
+        "interval": 1,
+        "backupCount": 0,
+        "formatter": "json",
+        "encoding": "utf-8",
+    }
+    LOGGING["loggers"][app_name] = {
+        "handlers": ["console", handler_name],
+        "level": "DEBUG" if DEBUG else "INFO",
+        "propagate": False,
+    }

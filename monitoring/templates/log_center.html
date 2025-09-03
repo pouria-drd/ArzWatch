@@ -1,0 +1,215 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* ========= Global Layout ========= */
+  .log-center-wrapper {
+    margin-top: 20px;
+  }
+
+  /* ========= Toolbar ========= */
+  .log-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--darkened-bg, #f9f9f9);
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 10px;
+  }
+  .log-toolbar label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--body-quiet-color, #444);
+    gap: 6px;
+  }
+  .log-toolbar select,
+  .log-toolbar input[type="number"] {
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color, #ccc);
+    background: var(--body-bg, #fff);
+    color: var(--body-fg, #222);
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .log-toolbar select:focus,
+  .log-toolbar input[type="number"]:focus {
+    outline: none;
+    border-color: var(--link-fg, #417690);
+    box-shadow: 0 0 0 2px rgba(65, 118, 144, 0.2);
+  }
+  .log-toolbar .button {
+    padding: 7px 16px;
+    border-radius: 6px;
+    background: var(--button-bg, #f0f0f0);
+    border: 1px solid var(--border-color, #ccc);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  .log-toolbar .button:hover {
+    background: var(--button-hover-bg, #e6e6e6);
+  }
+
+  /* ========= Badges ========= */
+  .log-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .lvl-DEBUG    { background: #e9f9ee; color: #1a7f37; }
+  .lvl-INFO     { background: #e6f2ff; color: #004085; }
+  .lvl-WARNING  { background: #fff7e6; color: #ad6800; }
+  .lvl-ERROR    { background: #ffe6e6; color: #a8071a; }
+  .lvl-CRITICAL { background: #ffe6f1; color: #c41d7f; }
+
+  /* ========= Table ========= */
+  .log-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--body-bg, #fff);
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+  .log-table th, .log-table td {
+    padding: 12px 14px;
+    vertical-align: top;
+    text-align: left;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border-color, #eee);
+  }
+  .log-table th {
+    background: var(--darkened-bg, #f5f5f5);
+    font-weight: 600;
+    color: var(--body-quiet-color, #555);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .log-table tbody tr:hover {
+    background: var(--selected-row-bg, rgba(65, 118, 144, 0.1));
+  }
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    word-break: break-word;
+  }
+
+  /* ========= Responsive ========= */
+  @media (max-width: 768px) {
+    .log-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .log-toolbar label {
+      width: 100%;
+    }
+    .log-table th:nth-child(3),
+    .log-table td:nth-child(3) {
+      display: none; /* Hide Logger column */
+    }
+  }
+  @media (max-width: 500px) {
+    .log-table { display: block; }
+    .log-table thead { display: none; }
+    .log-table tbody, .log-table tr, .log-table td { display: block; width: 100%; }
+    .log-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border-color, #eee);
+    }
+    .log-table td:before {
+      content: attr(data-label);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+      color: var(--body-quiet-color, #555);
+    }
+  }
+</style>
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label='monitoring' %}">Monitoring</a>
+  &rsaquo; <a href="{% url 'admin:monitoring_logcentermodel_changelist' %}">Log Center</a>
+</div>
+{% endblock %}
+
+<div class="log-center-wrapper">
+  <form method="get" class="log-toolbar">
+    <label>
+      App
+      <select name="app" onchange="this.form.submit()">
+        {% for app, p in apps %}
+          <option value="{{ app }}" {% if app == selected_app %}selected{% endif %}>{{ app }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      File
+      <select name="file" onchange="this.form.submit()">
+        {% for f in files %}
+          <option value="{{ f }}" {% if f == selected_file %}selected{% endif %}>{{ f }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>
+      Lines
+      <input type="number" name="n" value="{{ n }}" min="50" max="5000" step="50" />
+    </label>
+
+    <label>
+      Level
+      <select name="level">
+        {% for lvl in levels %}
+          <option value="{{ lvl }}" {% if lvl == request.GET.level %}selected{% endif %}>{{ lvl|default:"(all)" }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <button class="button" type="submit">Apply</button>
+    {% if selected_app and selected_file %}
+      <a class="button" href="{% url 'admin:monitoring-log-download' %}?app={{ selected_app }}&file={{ selected_file }}">Download</a>
+    {% endif %}
+  </form>
+
+  {% if rows %}
+    <table class="log-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Level</th>
+          <th>Logger</th>
+          <th>Message</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td data-label="Time" class="mono">{{ r.time }}</td>
+          <td data-label="Level"><span class="log-badge lvl-{{ r.level|default:'INFO' }}">{{ r.level|default:"INFO" }}</span></td>
+          <td data-label="Logger" class="mono">{{ r.name }}</td>
+          <td data-label="Message" class="mono">{{ r.message }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No logs found for this selection.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,4 +1,3 @@
-from .log_admin import LogViewer
 from .telegram_user_admin import TelegramUserAdmin
 from .telegram_command_admin import TelegramCommandAdmin
 from .telegram_message_admin import TelegramMessageAdmin
